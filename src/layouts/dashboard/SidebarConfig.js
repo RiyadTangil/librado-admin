@@ -12,43 +12,42 @@ const sidebarConfig = [
     icon: getIcon('eva:pie-chart-2-fill')
   },
   {
-    title: 'user',
-    path: '/dashboard/user',
-    icon: getIcon('eva:people-fill')
+    title: 'Company Create',
+    path: '/dashboard/create-company',
+    icon: getIcon('eva:pie-chart-2-fill')
   },
   {
-    title: 'Questions',
-    path: '/dashboard/products',
-    icon: getIcon('eva:shopping-bag-fill')
+    title: 'Welcome',
+    path: '/dashboard/welcome',
+    icon: getIcon('eva:pie-chart-2-fill')
   },
+
   {
-    title: 'Report',
-    path: '/dashboard/blog',
-    icon: getIcon('eva:file-text-fill')
-  },
-  {
-    title: 'Manage Content',
-    path: '/dashboard/contents',
+    title: 'Getting Started',
+    path: '/dashboard/getting-started',
     icon: getIcon('eva:lock-fill')
   },
   {
-    title: 'Request',
-    path: '/dashboard/request',
-    icon: getIcon('eva:person-add-fill')
+    title: 'Happiness Factor',
+    path: '/dashboard/happiness-factor',
+    icon: getIcon('eva:lock-fill')
   },
-  //   title: 'Manage Content',
-  //   path: '/login',
-  //   icon: getIcon('eva:lock-fill')
-  // },
-  // {
-  //   title: 'Request',
-  //   path: '/register',
-  //   icon: getIcon('eva:person-add-fill')
-  // },
   {
-    title: 'Not found',
-    path: '/404',
-    icon: getIcon('eva:alert-triangle-fill')
+    title: 'Cultural / Target Statement',
+    path: '/dashboard/statements',
+    icon: getIcon('eva:lock-fill')
+  },
+
+  {
+    title: 'Operational Category',
+    path: '/dashboard/questions',
+    icon: getIcon('eva:lock-fill')
+  },
+
+  {
+    title: 'Publish report',
+    path: '/dashboard/reports',
+    icon: getIcon('eva:file-text-fill')
   }
 ];
 

@@ -23,6 +23,9 @@ const SectionStyle = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
+  backgroundImage: 'url(/static/illustrations/login_bg.png)',
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
   margin: theme.spacing(2, 0, 2, 2)
 }));
 
@@ -49,24 +52,18 @@ export default function Register() {
       </AuthLayout>
 
       <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
-        <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-          Manage the job more effectively with Minimal
-        </Typography>
-        <img alt="register" src="/static/illustrations/illustration_register.png" />
+        {/* <img sx={{ width: '100%' }} src="/static/illustrations/login_bg.png" alt="login" /> */}
       </SectionStyle>
 
       <Container>
         <ContentStyle>
           <Box sx={{ mb: 5 }}>
             <Typography variant="h4" gutterBottom>
-              Get started absolutely free.
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-              Free forever. No credit card needed.
+              Get started
             </Typography>
           </Box>
 
-          <AuthSocial />
+          {/* <AuthSocial /> */}
 
           <RegisterForm />
 

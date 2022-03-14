@@ -1,7 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Card, Stack, Link, Container, Typography } from '@mui/material';
+import { Card, Stack, Link, Container, Typography, Box } from '@mui/material';
 // layouts
 import AuthLayout from '../layouts/AuthLayout';
 // components
@@ -23,6 +23,9 @@ const SectionStyle = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
+  backgroundImage: 'url(/static/illustrations/login_bg.png)',
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
   margin: theme.spacing(2, 0, 2, 2)
 }));
 
@@ -49,21 +52,23 @@ export default function Login() {
       </AuthLayout>
 
       <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
-        <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
+        {/* <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
           Hi, Welcome Back
-        </Typography>
-        <img src="/static/illustrations/illustration_login.png" alt="login" />
+        </Typography> */}
+        {/* <img sx={{ width: '100%' }} src="/static/illustrations/login_bg.png" alt="login" /> */}
       </SectionStyle>
 
       <Container maxWidth="sm">
         <ContentStyle>
-          <Stack sx={{ mb: 5 }}>
+          <Box sx={{ mb: 5 }}>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Welcome Back
             </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
-          </Stack>
-          <AuthSocial />
+            <Typography sx={{ color: 'text.secondary' }}>
+              Enter your email and password to sign in
+            </Typography>
+          </Box>
+          {/* <AuthSocial /> */}
 
           <LoginForm />
 

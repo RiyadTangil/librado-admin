@@ -72,8 +72,8 @@ export default function EcommerceShop() {
           </Stack>
         </Stack>
 
-        {/* <ProductList products={PRODUCTS} />
-        <ProductCartWidget /> */}
+        <ProductList products={PRODUCTS} />
+        <ProductCartWidget />
       </Container>
     </Page>
   );

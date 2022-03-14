@@ -32,8 +32,9 @@ export default function RegisterForm() {
       password: ''
     },
     validationSchema: RegisterSchema,
-    onSubmit: () => {
+    onSubmit: (data) => {
       navigate('/dashboard', { replace: true });
+      console.log('working', data);
     }
   });
 

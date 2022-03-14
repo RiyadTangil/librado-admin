@@ -7,11 +7,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardApp from './pages/DashboardApp';
 import Products from './pages/Products';
-import Blog from './pages/Blog';
 import User from './pages/User';
 import NotFound from './pages/Page404';
-import Contents from './pages/Contents';
-import Request from './pages/Request';
+import Questions from './pages/Questions';
+import CreateCompany from './pages/CreateCompany';
+import Welcome from './pages/Welcome';
+import GetStarted from './pages/GetStarted';
+import HappinessFactor from './pages/HappinessFactor';
+import Statements from './pages/Statements';
+import Reports from './pages/Reports';
 
 // ----------------------------------------------------------------------
 
@@ -23,17 +27,20 @@ export default function Router() {
       children: [
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
-        { path: 'products', element: <Products /> },
-        { path: 'contents', element: <Contents /> },
-        { path: 'request', element: <Request /> },
-        { path: 'blog', element: <Blog /> }
+        { path: 'questions', element: <Questions /> },
+        { path: 'create-company', element: <CreateCompany /> },
+        { path: 'welcome', element: <Welcome /> },
+        { path: 'getting-started', element: <GetStarted /> },
+        { path: 'happiness-factor', element: <HappinessFactor /> },
+        { path: 'statements', element: <Statements /> },
+        { path: 'reports', element: <Reports /> }
       ]
     },
     {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/app" /> },
+        { path: '/', element: <Navigate to="/login" /> },
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },

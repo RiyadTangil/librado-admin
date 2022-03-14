@@ -18,13 +18,13 @@ const SORT_OPTIONS = [
 
 // ----------------------------------------------------------------------
 
-export default function Request() {
+export default function Statements() {
   return (
     <Page title="Dashboard: Blog">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Request
+            Statements
           </Typography>
           <Button
             variant="contained"
