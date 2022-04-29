@@ -73,7 +73,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
                 {account.displayName}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {account.email}
               </Typography>
             </Box>
           </AccountStyle>

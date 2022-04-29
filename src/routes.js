@@ -7,7 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardApp from './pages/DashboardApp';
 import Products from './pages/Products';
-import User from './pages/User';
+import User from './pages/reateCompany';
 import NotFound from './pages/Page404';
 import Questions from './pages/Questions';
 import CreateCompany from './pages/CreateCompany';
@@ -16,6 +16,7 @@ import GetStarted from './pages/GetStarted';
 import HappinessFactor from './pages/HappinessFactor';
 import Statements from './pages/Statements';
 import Reports from './pages/Reports';
+import Category from './pages/Category';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +34,7 @@ export default function Router() {
         { path: 'getting-started', element: <GetStarted /> },
         { path: 'happiness-factor', element: <HappinessFactor /> },
         { path: 'statements', element: <Statements /> },
+        { path: 'category', element: <Category /> },
         { path: 'reports', element: <Reports /> }
       ]
     },

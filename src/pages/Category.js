@@ -22,7 +22,7 @@ const SORT_OPTIONS = [
 ];
 
 // ----------------------------------------------------------------------
-export default function Statements() {
+export default function Category() {
   const [comInfo, setComInfo] = useState([])
   const handleChange = (e, value) => {
     const newInfo = { ...comInfo };
@@ -35,48 +35,20 @@ export default function Statements() {
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
         <Grid container spacing={1.5}>
-          <Grid item xs={5}>
+          <Grid item xs={9}>
             <Typography variant="h4" gutterBottom>
-              Cultural / Target Statement
+              Manage Category
             </Typography>
           </Grid>
           <Grid item xs={3}>
             <Box display="flex" alignItems="center" justifyContent="end">
               <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" >Reset</Button>
-              <Button color="secondary" size="large" variant="outlined" >Add Question</Button>
+              <Button color="secondary" size="large" variant="outlined" >Add Category</Button>
             </Box>
 
           </Grid>
-
-
-          <Grid item xs={4}>
-            <Autocomplete
-              disablePortal
-              onChange={(e, value) => handleChange(e, value)}
-              id="company"
-              options={options}
-              renderInput={(params) => <TextField {...params} label="Company Name" />}
-            />
-          </Grid>
         </Grid>
-        <Stack direction="row" justifyContent="end">
-          <Autocomplete
-            sx={{ width: '33%', mt: 3 }}
-            onChange={(e, value) => handleChange(e, value)}
-            id="company"
-
-            options={options}
-            renderInput={(params) => <TextField {...params} label="Question Category" />}
-          />
-
-        </Stack>
-
-
-        <ButtonGroup sx={{ display: 'flex', justifyContent: "end", mt: 3, color: "black" }} size="small" aria-label="small button group">
-          <Button sx={{ color: "black" }} size="small" variant="outlined" >Cultural</Button>
-          <Button sx={{ color: "black" }} size="small" variant="outlined" >Target</Button>
-        </ButtonGroup>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <QuestionCard  key={i + 1} />)}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <QuestionCard key={i + 1} />)}
       </Card>
     </Page>
   );

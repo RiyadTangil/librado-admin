@@ -32,12 +32,17 @@ const sidebarConfig = [
     path: '/dashboard/happiness-factor',
     icon: getIcon('eva:lock-fill')
   },
+  
   {
     title: 'Cultural / Target Statement',
     path: '/dashboard/statements',
     icon: getIcon('eva:lock-fill')
   },
-
+  {
+    title: 'Category',
+    path: '/dashboard/category',
+    icon: getIcon('eva:lock-fill')
+  },
   {
     title: 'Operational Category',
     path: '/dashboard/questions',
