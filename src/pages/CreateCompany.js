@@ -1,6 +1,8 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
+import swal from 'sweetalert';
+import toast from 'react-hot-toast';
 import { Link as RouterLink } from 'react-router-dom';
 import * as React from 'react';
 
@@ -84,6 +86,7 @@ function applySortFilter(array, comparator, query) {
 
 export default function CreateCompany() {
   const [page, setPage] = useState(0);
+  const [comInfo, setComInfo] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
@@ -147,6 +150,45 @@ export default function CreateCompany() {
   const handleFilterByName = (event) => {
     setFilterName(event.target.value);
   };
+  const handleChange = (e, value) => {
+    const newInfo = { ...comInfo };
+    newInfo[e.target.id.split('-')[0]] = e.target.value;
+    setComInfo(newInfo);
+    console.log(newInfo);
+  }
+
+  const onSubmit = (e) => {
+    const loading = toast.loading('Please wait...!');
+    e.preventDefault()
+    fetch('http://localhost:3333/addCompany', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({
+        "name": comInfo.name,
+        "company_name": comInfo.company_name,
+        "email": comInfo.email,
+        "img_url": "img_url",
+        "unique_id": `https://peopleinsight.netlify.app/${comInfo.name}/home`,
+      })
+
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        console.log(data);
+        if (!data.error) {
+
+          return swal("service Added", "service has been added successful.", "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
@@ -187,12 +229,12 @@ export default function CreateCompany() {
                 <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={preview !== null ? preview : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
                 <input
                   type="file"
-                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  onClick={(e) => setSelectedFile(e.target.files[0])}
                   hidden
                 />
               </Button>
               <Button
-                onClick={() => setState(false)}
+                onClick={onSubmit}
                 sx={{
                   position: 'absolute',
                   marginTop: '10px',
@@ -212,23 +254,26 @@ export default function CreateCompany() {
 
             >
               <TextField
-                id="Name"
+                onBlur={(e, value) => handleChange(e, value)}
+                id="name"
                 label="Name"
                 placeholder="Name"
               />
 
               <TextField
-                id="company-name"
+                onBlur={(e, value) => handleChange(e, value)}
+                id="company_name"
                 label="Company Name"
                 placeholder="Company Name"
               />
               <TextField
-                id="Email-id"
+                onBlur={(e, value) => handleChange(e, value)}
+                id="email"
                 label="Email Id"
                 placeholder="Email Id"
               />
               <OutlinedInput
-                id="Unique-id"
+                id="unique_id"
                 placeholder="www.peopleaccel.com/qwe"
 
                 endAdornment={
@@ -288,7 +333,7 @@ export default function CreateCompany() {
                           {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={isItemSelected}
-                              onChange={(event) => handleClick(event, name)}
+                              onBlur={(event) => handleClick(event, name)}
                             />
                           </TableCell> */}
                           <TableCell component="th" scope="row" sx={{ px: 3 }}>
