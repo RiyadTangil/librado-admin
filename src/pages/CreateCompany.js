@@ -46,9 +46,10 @@ const TABLE_HEAD = [
   { id: 'S.No', label: 'S.No', alignRight: false },
   { id: '5', label: '', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
+  { id: 'company_name', label: 'Company', alignRight: false },
   { id: 'role', label: 'Email Id', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: '3', label: 'Copy unique id', alignRight: false },
+
   // { id: 'status', label: 'Status', alignRight: false },
   { id: '' }
 ];
@@ -87,6 +88,8 @@ function applySortFilter(array, comparator, query) {
 export default function CreateCompany() {
   const [page, setPage] = useState(0);
   const [comInfo, setComInfo] = useState(0);
+  const [comList, setComList] = useState([]);
+  const [responseData, setResponseData] = useState([]);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
@@ -170,17 +173,18 @@ export default function CreateCompany() {
         "company_name": comInfo.company_name,
         "email": comInfo.email,
         "img_url": "img_url",
-        "unique_id": `https://peopleinsight.netlify.app/${comInfo.name}/home`,
+        "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,
       })
 
     })
       .then(response => response.json())
       .then(data => {
         toast.dismiss(loading);
-        console.log(data);
+        setResponseData(data.data);
+        console.log(data.data.unique_id)
         if (!data.error) {
 
-          return swal("service Added", "service has been added successful.", "success");
+          return swal("Company Added", "Company has been added successful.", "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -189,7 +193,15 @@ export default function CreateCompany() {
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
   }
+  useEffect(() => {
+    fetch("http://localhost:3333/getCompany")
+      .then(res => res.json())
+      .then(data => setComList(data))
+  }, [responseData])
 
+  const handleClipboard = async (id) => {
+    navigator.clipboard.writeText(id);
+  }
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
@@ -214,8 +226,6 @@ export default function CreateCompany() {
           </Button>
         </Stack>
         <div>
-
-
           <Drawer
             anchor='right'
             open={state}
@@ -272,22 +282,25 @@ export default function CreateCompany() {
                 label="Email Id"
                 placeholder="Email Id"
               />
-              <OutlinedInput
-                id="unique_id"
-                placeholder="www.peopleaccel.com/qwe"
+              {responseData?.unique_id &&
+                <OutlinedInput
+                  id="unique_id"
+                  placeholder="www.peopleaccel.com/qwe"
+                  defaultValue={responseData?.unique_id}
 
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      edge="end"
-                    >
-                      <Iconify icon="akar-icons:copy" />
-                    </IconButton>
-                  </InputAdornment>
-                }
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={() => handleClipboard(responseData?.unique_id)}
+                      >
+                        <Iconify icon="akar-icons:copy" />
+                      </IconButton>
+                    </InputAdornment>
+                  }
 
-              />
+                />}
             </Box>
 
           </Drawer>
@@ -315,54 +328,54 @@ export default function CreateCompany() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, index) => {
-                      const { id, email, name, role, status, company, avatarUrl, isVerified } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                  {comList?.map((row, index) => {
 
-                      return (
-                        <TableRow
-                          hover
-                          key={id}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                        >
-                          {/* <TableCell padding="checkbox">
+                    const isItemSelected = selected.indexOf(row?.name) !== -1;
+
+                    return (
+                      <TableRow
+                        hover
+                        key={row?.name}
+                        tabIndex={-1}
+                        role="checkbox"
+                        selected={isItemSelected}
+                        aria-checked={isItemSelected}
+                      >
+                        {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={isItemSelected}
                               onBlur={(event) => handleClick(event, name)}
                             />
                           </TableCell> */}
-                          <TableCell component="th" scope="row" sx={{ px: 3 }}>
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {index + 1}
-                              </Typography>
+                        <TableCell component="th" scope="row" sx={{ px: 3 }}>
+                          <Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography variant="subtitle2" noWrap>
+                              {index + 1}
+                            </Typography>
 
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="left">  <Avatar alt={name} src={avatarUrl} /></TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{name}</TableCell>
-                          <TableCell align="left">{email}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant="ghost"
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
+                          </Stack>
+                        </TableCell>
+                        <TableCell align="left">  <Avatar alt={row?.name} src="https://i.ibb.co/hFpDTpy/download.png" /></TableCell>
+                        <TableCell align="left">{row?.name}</TableCell>
+                        <TableCell align="left">{row?.company_name}</TableCell>
+                        <TableCell align="left">{row?.email}</TableCell>
+                        <TableCell align="left">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            edge="end"
+                            onClick={() => handleClipboard(row?.unique_id)}
+                          >
+                            <Iconify icon="akar-icons:copy" />
+                          </IconButton>
+                        </TableCell>
 
-                          <TableCell align="right">
-                            <UserMoreMenu />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+
+                        <TableCell align="right">
+                          <UserMoreMenu />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
                       <TableCell colSpan={6} />

@@ -1,9 +1,11 @@
 
 import { Link as RouterLink } from 'react-router-dom';
+import swal from 'sweetalert';
+import toast from 'react-hot-toast';
 // material
-import { useState } from 'react';
-
-import { Grid, Button, Container, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup } from '@mui/material';
+import { useState ,useEffect} from 'react';
+import { positions } from '@mui/system';
+import { Grid, Button, Icon, Container, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup, Drawer, OutlinedInput } from '@mui/material';
 // components
 import QuestionCard from '../components/QuestionCard';
 // components
@@ -24,13 +26,75 @@ const SORT_OPTIONS = [
 // ----------------------------------------------------------------------
 export default function Question() {
   const [comInfo, setComInfo] = useState([])
+  const [responseData, setResponseData] = useState([])
+  const [state, setState] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [option, setOption] = useState([1]);
+  const [optionInfo, setOptionInfo] = useState([]);
   const handleChange = (e, value) => {
     const newInfo = { ...comInfo };
-    newInfo[e.target.id.split('-')[0]] = value;
+    newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
+    console.log(comInfo, "comInfo")
+  }
+  const handleOptionValue = (e, value, item) => {
+
+    const newInfo = { value: item, option: e.target.value };
+    setOptionInfo([...optionInfo, newInfo]);
+
+
   }
   const options = ['The Godfather', 'Pulp Fiction'];
 
+  const onSubmit = (e) => {
+    const loading = toast.loading('Please wait...!');
+    e.preventDefault()
+    fetch('http://localhost:3333/addQuestion/1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({
+        "question": comInfo.question,
+        "priority_info": comInfo.priority_info,
+        "options": optionInfo,
+        "question_type": comInfo.question_type,
+        "priority": comInfo.priority,
+      })
+
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        // setResponseData(data.data);
+        // console.log(data.data.unique_id)
+        if (!data.error) {
+
+          return swal("Company Added", "Company has been added successful.", "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
+  useEffect(() => {
+    fetch("http://localhost:3333/getCompany")
+      .then(res => res.json())
+      .then(data => setQuestions(data))
+  }, [responseData])
+  const btn = {
+    position: 'absolute',
+    right: '0',
+    bottom: '0',
+    transform: 'translateY(70%)',
+    cursor: 'pointer'
+  }
+  const btnBox = {
+    position: 'relative',
+
+  }
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -43,11 +107,87 @@ export default function Question() {
           <Grid item xs={3}>
             <Box display="flex" alignItems="center" justifyContent="end">
               <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" >Reset</Button>
-              <Button color="secondary" size="large" variant="outlined" >Add Question</Button>
+              <Button onClick={() => setState(true)} color="secondary" size="large" variant="outlined" >Add Question</Button>
             </Box>
 
           </Grid>
+          <Drawer
+            anchor='right'
+            open={state}
+            onClose={() => setState(false)}
+          >
+            <Stack alignItems="center" justifyContent="center" mb={5}>
 
+              <Button
+                onClick={onSubmit}
+                sx={{
+                  position: 'absolute',
+                  marginTop: '10px',
+                  marginRight: '10px',
+
+                  right: '0',
+                  top: '0',
+                }} variant="outlined" >Save </Button>
+            </Stack>
+
+            <Box
+              sx={{
+                width: 450, p: 2, display: 'grid',
+                gap: 2,
+                gridTemplateColumns: 'repeat(1, 1fr)',
+              }}
+              role="presentation"
+
+            >
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="question"
+                label="question"
+                placeholder="question"
+              />
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 2,
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                }}
+                role="presentation"
+
+              >
+                {option.map((item, index) =>
+                  <Box style={btnBox} key={index + 1}>
+                    {option.length - 1 === option.lastIndexOf(item) &&
+                      <Iconify onClick={() => setOption([...option, item + 1])} style={btn} color="green" icon="akar-icons:circle-plus-fill" />}
+                    <TextField
+                      onBlur={(e, value) => handleOptionValue(e, value, item)}
+                      id={`options+${item}`}
+                      label="options"
+                      placeholder="options"
+                    />
+                  </Box>)}
+              </Box>
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="priority_info"
+                label="priority info"
+                placeholder="priority info"
+              />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="question_type"
+                label="question type"
+                placeholder="question type"
+              />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="priority"
+                label="priority"
+                placeholder="priority"
+              />
+
+            </Box>
+
+          </Drawer>
 
           <Grid item xs={4}>
             <Autocomplete
@@ -76,7 +216,7 @@ export default function Question() {
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Cultural</Button>
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Target</Button>
         </ButtonGroup>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <QuestionCard key={i + 1} />)}
+        {questions?.map(i => <QuestionCard key={i + 1} />)}
       </Card>
     </Page>
   );

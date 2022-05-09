@@ -179,7 +179,7 @@ export default function Welcome() {
                   id="industry"
                   name="first"
                   fullWidth
-                  options={options}
+                  options={industryOptions}
                   renderInput={(params) => <TextField {...params} label="Industry" />}
                 />
                 <Button
