@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 // material
-import { useState ,useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { positions } from '@mui/system';
 import { Grid, Button, Icon, Container, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup, Drawer, OutlinedInput } from '@mui/material';
 // components
@@ -26,8 +26,9 @@ const SORT_OPTIONS = [
 // ----------------------------------------------------------------------
 export default function Question() {
   const [comInfo, setComInfo] = useState([])
-  const [responseData, setResponseData] = useState([])
+  const [reload, setReload] = useState(false)
   const [state, setState] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [option, setOption] = useState([1]);
   const [optionInfo, setOptionInfo] = useState([]);
@@ -66,11 +67,11 @@ export default function Question() {
       .then(response => response.json())
       .then(data => {
         toast.dismiss(loading);
-        // setResponseData(data.data);
-        // console.log(data.data.unique_id)
+        setReload(!reload);
+
         if (!data.error) {
 
-          return swal("Company Added", "Company has been added successful.", "success");
+          return swal("Question Added", "Question has been added successful.", "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -79,11 +80,38 @@ export default function Question() {
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
   }
+  const handleDelete = (id) => {
+
+    const loading = toast.loading('Please wait...!');
+    fetch(`http://localhost:3333/deleteQuestion/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({ title: 'React Hooks PUT Request Example' })
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        if (data.success) {
+          setReload(!reload);
+
+          return swal("Question Deleted", "Question has been Deleted successful.", "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+
+    console.log("delete", id)
+  }
   useEffect(() => {
-    fetch("http://localhost:3333/getCompany")
+    fetch("http://localhost:3333/questionByCategory")
       .then(res => res.json())
-      .then(data => setQuestions(data))
-  }, [responseData])
+      .then(data => setCategories(data?.data))
+  }, [reload])
   const btn = {
     position: 'absolute',
     right: '0',
@@ -216,7 +244,12 @@ export default function Question() {
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Cultural</Button>
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Target</Button>
         </ButtonGroup>
-        {questions?.map(i => <QuestionCard key={i + 1} />)}
+        {categories?.map(category => (
+          category?.questions?.map((question, index) => (
+            <QuestionCard handleDelete={handleDelete} question={question} key={index + 1} />
+          ))
+
+        ))}
       </Card>
     </Page>
   );

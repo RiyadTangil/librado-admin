@@ -1,117 +1,124 @@
-import { useState } from 'react';
-import { Grid, Button, Container, Stack, Typography, Card, Box, TextField, Autocomplete, InputAdornment, OutlinedInput, IconButton, Drawer } from '@mui/material';
+import swal from 'sweetalert';
+import toast from 'react-hot-toast';
+// material
+import { useState, useEffect } from 'react';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer } from '@mui/material';
 // components
+import AddCompnayInfo from '../components/welcome/AddCompnayInfo';
 import Page from '../components/Page';
-import Iconify from '../components/Iconify';
 
-const SORT_OPTIONS = [
-  { value: 'latest', label: 'Latest' },
-  { value: 'popular', label: 'Popular' },
-  { value: 'oldest', label: 'Oldest' }
-];
 const options = ['The Godfather', 'Pulp Fiction'];
 // ----------------------------------------------------------------------
 export default function Welcome() {
-  const [boxHeight, setExpandBox] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [industries, setIndustries] = useState([]);
+  const [department, setDepartment] = useState([]);
+  const [comList, setComList] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [location, setLocation] = useState([]);
   const [comInfo, setComInfo] = useState([])
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const [state, setState] = useState(false);
+  const [reload, setReload] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [drawerId, setDrawerId] = useState("");
+  const [drawerInfo, setDrawerInfo] = useState([])
   const handleChange = (e, value) => {
     const newInfo = { ...comInfo };
-    newInfo[e.target.id.split('-')[0]] = value;
+    newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
+    console.log("infor from blur ", newInfo)
   }
+  const onSubmit = (id) => {
+    const newObject = {}
+    newObject[id] = comInfo[id]
+    const capitalizeId = id.charAt(0).toUpperCase() + id.slice(1);
+    const loading = toast.loading('Please wait...!');
+    fetch(`http://localhost:3333/add${capitalizeId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify(newObject)
 
-  const industryOptions = ['Construction', 'Education', 'Healthcare', 'Financial', 'Technology', 'Manufacturing', 'Transport', 'Oil & Gas', 'Hospitality', 'Energy'];
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        setReload(!reload);
+
+        if (!data.error) {
+          return swal(`${capitalizeId} Added`, `${capitalizeId} has been added successful.`, "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
+  const handleDelete = (id, drawerId) => {
+    const capitalizeId = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
+    const loading = toast.loading('Please wait...!');
+    fetch(`http://localhost:3333/delete${capitalizeId}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({ title: 'React Hooks PUT Request Example' })
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        if (data.success) {
+          setReload(!reload);
+          return swal(`${capitalizeId} Deleted`, `${capitalizeId} has been Deleted successful.`, "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
+  useEffect(() => {
+    fetch("http://localhost:3333/getAllWelcomeInfo")
+      .then(res => res.json())
+      .then(data => {
+        setLocation(data?.location)
+        setRoles(data?.role)
+        setIndustries(data?.industry)
+        setDepartment(data?.department)
+      })
+  }, [reload])
+  useEffect(() => {
+    if (drawerId) {
+      handleDrawerOpen(drawerId)
+    }
+  }, [industries, department, roles, location])
+  useEffect(() => {
+    fetch("http://localhost:3333/getCompany")
+      .then(res => res.json())
+      .then(data => setComList(data))
+  }, [])
+  const handleDrawerOpen = (id) => {
+    setOpenDrawer(true)
+    setDrawerId(id)
+    if (id === "industry") {
+      setDrawerInfo(industries)
+    }
+    else if (id === "department") {
+      setDrawerInfo(department)
+    }
+    else if (id === "role") {
+      setDrawerInfo(roles)
+    }
+    else {
+      setDrawerInfo(location)
+    }
+  }
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={5}>
-            <Typography variant="h4" gutterBottom>
-              Welcome
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
 
-            <Box display="flex" alignItems="center" justifyContent="end">
-              <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" >Reset</Button>
-              <Button onClick={() => setState(!false)} color="secondary" size="large" variant="outlined" >Edit Content</Button>
-            </Box>
-            <Drawer
-              anchor='right'
-              open={state}
-              onClose={() => setState(false)}
-            >
-              <Stack alignItems="center" justifyContent="center" mb={3}>
-                <Button
-                  onClick={() => setState(false)}
-                  sx={{
-                    position: 'absolute',
-                    marginTop: '10px',
-                    marginRight: '10px',
-                    right: '0',
-                    top: '0',
-                  }} variant="outlined" >Save</Button>
-              </Stack>
-
-              <Box
-                sx={{
-                  width: 450, p: 2, mt: 3, display: 'grid',
-                  gap: 2,
-                  gridTemplateColumns: 'repeat(1, 1fr)',
-                }}
-                role="presentation"
-
-              >
-                <TextField
-                  id="outlined-multiline-static"
-                  label="Multiline"
-                  multiline
-                  rows={4}
-                  defaultValue="Default Value"
-                />
-                <TextField
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="industry"
-                  label="Industry"
-                />
-                <TextField
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="location"
-                  label="Work location"
-                />
-                <TextField
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="department"
-                  label="department"
-                />
-                <TextField
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="role"
-                  label="role"
-                />
-
-
-              </Box>
-
-            </Drawer>
-
-
-          </Grid>
-          <Grid item xs={4}>
-            <Autocomplete
-              disablePortal
-              onChange={(e, value) => handleChange(e, value)}
-              id="company"
-              options={options}
-              renderInput={(params) => <TextField {...params} label="Company Name" />}
-            />
-          </Grid>
-        </Grid>
+        <AddCompnayInfo industries={industries} department={department} roles={roles} location={location} />
 
         <Grid container sx={{ mt: 10 }} spacing={2}>
           <Grid item xs={7}>
@@ -127,117 +134,80 @@ export default function Welcome() {
             </Typography>
 
           </Grid>
-          <Drawer
 
-            anchor='right'
-            open={openDrawer}
-            onClose={() => setOpenDrawer(false)}
-          >
-
-            <Box sx={{ width: 450 }} mb={3} >
-              <Button
-                onClick={() => setState(false)}
-                sx={{
-                  position: 'absolute',
-                  marginTop: '10px',
-                  marginRight: '10px',
-                  right: '0',
-                  top: '0',
-                }} variant="outlined" >
-                Save
-              </Button>
-
-              <Stack
-                role="presentation"
-                sx={{
-                  p: "10px", mt: "50px"
-                }}
-                spacing={2}
-              >
-                {industryOptions.map(i =>
-                  <Card sx={{
-                    display: 'flex', justifyContent: 'space-between', p: "10px", boxShadow: 3 
-                  }} key={i}>
-                    <Typography mt={2}>{i}</Typography>
-                    <Button style={{ marginLeft: 10 }}  color="error" variant="outlined" >Delete</Button>
-                  </Card>
-                )}
-
-              </Stack>
-            </Box>
-
-
-
-          </Drawer>
 
           <Grid item xs={5}>
             <Stack spacing={3}>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Autocomplete
                   disablePortal
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="industry"
+                  onBlur={(e, value) => handleChange(e, value)}
+                  id="industries"
                   name="first"
                   fullWidth
-                  options={industryOptions}
+                  getOptionLabel={option => option.industry}
+                  options={industries}
                   renderInput={(params) => <TextField {...params} label="Industry" />}
                 />
                 <Button
                   style={{ marginLeft: 10 }}
                   size="large"
                   color="secondary"
-                  onClick={() => setOpenDrawer(true)}
+                  onClick={() => handleDrawerOpen("industry")}
                   variant="outlined"
                 >Edit</Button>
               </Box>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Autocomplete
                   disablePortal
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="location"
+                  onBlur={(e, value) => handleChange(e, value)}
+                  id="locations"
                   fullWidth
-                  options={options}
+                  getOptionLabel={option => option.location}
+                  options={location}
                   renderInput={(params) => <TextField {...params} label="location" />}
                 />
                 <Button
                   style={{ marginLeft: 10 }}
                   size="large"
                   color="secondary"
-                  onClick={() => setOpenDrawer(true)}
+                  onClick={() => handleDrawerOpen("location")}
                   variant="outlined"
                 >Edit</Button>
               </Box>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Autocomplete
                   disablePortal
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="department"
+                  onBlur={(e, value) => handleChange(e, value)}
+                  id="departments"
                   fullWidth
-                  options={options}
+                  getOptionLabel={option => option.department}
+                  options={department}
                   renderInput={(params) => <TextField {...params} label="department" />}
                 />
                 <Button
                   style={{ marginLeft: 10 }}
                   size="large"
                   color="secondary"
-                  onClick={() => setOpenDrawer(true)}
+                  onClick={() => handleDrawerOpen("department")}
                   variant="outlined"
                 >Edit</Button>
               </Box>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Autocomplete
                   disablePortal
-                  onChange={(e, value) => handleChange(e, value)}
-                  id="role"
+                  onBlur={(e, value) => handleChange(e, value)}
+                  id="roles"
                   fullWidth
-                  options={options}
+                  getOptionLabel={option => option.role}
+                  options={roles}
                   renderInput={(params) => <TextField {...params} label="role" />}
                 />
                 <Button
                   style={{ marginLeft: 10 }}
                   size="large"
                   color="secondary"
-                  onClick={() => setOpenDrawer(true)}
+                  onClick={() => handleDrawerOpen("role")}
                   variant="outlined"
                 >Edit</Button>
               </Box>
@@ -245,8 +215,49 @@ export default function Welcome() {
             </Stack>
           </Grid>
         </Grid>
+        <Drawer
+          anchor='right'
+          open={openDrawer}
+          onClose={() => setOpenDrawer(false)}
+        >
+          <Box sx={{ width: 450 }} mb={3} >
+            <Stack
+              role="presentation"
+              sx={{
+                p: "10px", mt: "50px"
+              }}
+              spacing={2}
+            >
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id={drawerId}
+                label={drawerId}
+              />
+              <Stack direction="row" alignItems="center" justifyContent="center">
+                <Button
+                  color="success"
+                  onClick={() => onSubmit(drawerId)}
+                  sx={{ width: '30%' }}
+                  variant="outlined" >
+                  Save
+                </Button>
+              </Stack>
+              {drawerInfo?.map((info, index) =>
+                <Card sx={{
+                  display: 'flex', justifyContent: 'space-between', p: "10px", boxShadow: 3
+                }} key={index}>
+                  <Typography mt={2}>{info?.industry || info?.department || info?.location || info?.role}</Typography>
+                  <Button onClick={() => handleDelete(info.id, drawerId)} style={{ marginLeft: 10 }} color="error" variant="outlined" >Delete</Button>
+                </Card>
+              )}
 
 
+            </Stack>
+          </Box>
+
+
+
+        </Drawer>
       </Card>
     </Page >
   );

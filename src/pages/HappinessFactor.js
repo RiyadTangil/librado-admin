@@ -25,6 +25,7 @@ export default function HappinessFactor() {
 
   // ----------------------------------------------------------------------
   const options = ['The Godfather', 'Pulp Fiction'];
+  // http://localhost:3333/addHappinessQsn
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -61,7 +62,7 @@ export default function HappinessFactor() {
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Cultural</Button>
           <Button sx={{ color: "black" }} size="small" variant="outlined" >Target</Button>
         </ButtonGroup>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <QuestionCard happiness={1} key={i + 1} />)}
+        {/* {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <QuestionCard happiness={1} key={i + 1} />)} */}
       </Card>
     </Page >
   );
