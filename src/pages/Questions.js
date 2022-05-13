@@ -238,12 +238,6 @@ export default function Question() {
           />
 
         </Stack>
-
-
-        <ButtonGroup sx={{ display: 'flex', justifyContent: "end", mt: 3, color: "black" }} size="small" aria-label="small button group">
-          <Button sx={{ color: "black" }} size="small" variant="outlined" >Cultural</Button>
-          <Button sx={{ color: "black" }} size="small" variant="outlined" >Target</Button>
-        </ButtonGroup>
         {categories?.map(category => (
           category?.questions?.map((question, index) => (
             <QuestionCard handleDelete={handleDelete} question={question} key={index + 1} />
