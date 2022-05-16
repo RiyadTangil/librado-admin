@@ -1,39 +1,48 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer } from '@mui/material';
 // components
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
-import QuestionCard from '../components/QuestionCard';
+import HappyCard from '../components/HappyCard';
 
 // ----------------------------------------------------------------------
-
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export default function HappinessFactor() {
   const [comList, setComList] = useState([]);
-  const [staterInfo, setStaterInfo] = useState(null);
+  const [happyAssessInfo, setHappyAssessInfo] = useState(null);
   const [responseData, setResponseData] = useState([]);
+  const [allQuestion, setAllQuestion] = useState([]);
+  const [happinessQsns, setHappinessQs] = useState([]);
   const [comInfo, setComInfo] = useState([])
+  const [editId, setEditId] = useState(null);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [state, setState] = useState(false);
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
   }
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const [state, setState] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const onSubmit = () => {
+  const handleAssessInfo = (value) => {
+    const newInfo = { ...comInfo };
+    newInfo.happinessQsn = value;
+    setComInfo(newInfo);
+  }
+  const onSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    console.log(comInfo?.company_id, "comInfo?.company_id")
-    fetch(`http://localhost:3333/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
-      method: `${staterInfo ? 'PUT' : 'POST'}`,
+    fetch(`http://localhost:3333/${id ? `updateHappinessQsn/${id}` : "addHappinessQsn"}`, {
+      method: id ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/Json'
       },
       body: JSON.stringify({
-        "docs": comInfo?.docs,
-        "img": "img link"
+        status: comInfo?.status,
+        question: comInfo?.question,
+
       })
     })
       .then(response => response.json())
@@ -42,7 +51,7 @@ export default function HappinessFactor() {
         setResponseData(data.data);
         if (!data.error) {
 
-          return swal(`GettingInfo ${staterInfo ? "updated" : "added"}`, `GettingInfo has been ${staterInfo ? "updated" : "added"} successful.`, "success");
+          return swal(`GettingInfo ${id ? "updated" : "added"} `, `Happiness Qsn has been ${id ? "updated" : "added"} successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -51,9 +60,35 @@ export default function HappinessFactor() {
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
   }
-  const handleDelete = () => {
+  const handleAssessmentSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteGettingInfo/${staterInfo.id}`, {
+    fetch(`http://localhost:3333/addHappyAssessInfo/${comInfo.company_id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({
+        question: comInfo.happinessQsn,
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        setResponseData(data.data);
+        if (!data.error) {
+
+          return swal(`Happiness Assess Info added `, `Happiness Qsn has been added successful.`, "success");
+        }
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
+  const handleDelete = (id, status) => {
+    const loading = toast.loading('Please wait...!');
+    fetch(`http://localhost:3333/${status ? "deleteHappyAssessInfo" : "deleteHappinessQsn"}/${ id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -64,9 +99,9 @@ export default function HappinessFactor() {
         toast.dismiss(loading);
         if (data.success) {
           setResponseData(data);
-          return swal(`GettingInfo Deleted`, `GettingInfo has been Deleted successful.`, "success");
+          return swal(`Happiness Qsn Deleted`, `Happiness Qsn has been Deleted successful.`, "success");
         }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+        swal("Failed!", "Something waent wrong! Please try again.", "error", { dangerMode: true });
       })
       .catch(error => {
         toast.dismiss(loading);
@@ -75,7 +110,7 @@ export default function HappinessFactor() {
   }
   const checkCompanySelector = () => {
     if (comInfo.company_id) {
-      setState(!false)
+      setOpenDrawer(!false)
     }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
@@ -83,24 +118,40 @@ export default function HappinessFactor() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getStarterInfo/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyAssessInfo/${comInfo?.company_id}`)
         .then(res => res.json())
-        .then(data => setStaterInfo(data?.data[0]?.getting_starts))
+        .then(data => setHappyAssessInfo(data?.data[0]?.happiness_assessment))
     }
   }, [comInfo?.company_id, responseData])
-  console.log(staterInfo, "staterInfo")
-  const imgStyle = {
-    width: "150px",
-    height: "150px",
-    borderRadius: "50%"
+  useEffect(() => {
+
+    fetch("http://localhost:3333/getHappinessQsn")
+      .then(res => res.json())
+      .then(data => {
+        setHappinessQs(data)
+        setAllQuestion(data.map(item => (
+          { question: item.question, status: item.status }
+
+        )))
+      })
+
+  }, [responseData])
+  const handleEdit = (id) => {
+    setEditId(id)
+    setState(!state)
+
   }
-  const btnStyle = {
-    position: 'absolute',
+  const handleAddQsn = () => {
+    setEditId(null)
+    setState(!state)
+  }
+  const boxStyle = {
+    width: 450, p: 2, mt: 3, display: 'grid',
+    gap: 2,
     marginTop: '10px',
-    marginRight: '10px',
-    right: '0',
-    top: '0',
+    gridTemplateColumns: 'repeat(1, 1fr)',
   }
+
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -112,12 +163,11 @@ export default function HappinessFactor() {
             </Typography>
           </Grid>
           <Grid item xs={5}>
-
             <Box display="flex" alignItems="center" justifyContent="end">
               <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" > Reset</Button>
-              {staterInfo &&
+              {happyAssessInfo &&
                 <Button
-                  onClick={handleDelete}
+                  onClick={() => handleDelete(happyAssessInfo?.id, true)}
                   style={{ marginRight: 10 }}
                   size="large"
                   color="error"
@@ -126,60 +176,7 @@ export default function HappinessFactor() {
                 </Button>}
               <Button onClick={checkCompanySelector} color="secondary" size="large" variant="outlined" >Edit Content</Button>
             </Box>
-
           </Grid>
-          <Drawer
-            anchor='right'
-            open={state}
-            onClose={() => setState(false)}
-          >
-            <Stack alignItems="center" justifyContent="center" mb={3}>
-              <Button
-                sx={{ "&:hover": { backgroundColor: "transparent" } }}
-                component="label"
-              >
-                <img style={imgStyle} src={preview !== null ? preview : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
-                <input
-                  type="file"
-                  onClick={(e) => setSelectedFile(e.target.files[0])}
-                  hidden
-                />
-              </Button>
-              <Button
-                onClick={onSubmit}
-                sx={btnStyle}
-                variant="outlined"
-              >{staterInfo ? "UPdate" : "Save"}
-              </Button>
-            </Stack>
-
-            <Box
-              sx={{
-                width: 450, p: 2, display: 'grid',
-                gap: 2,
-                gridTemplateColumns: 'repeat(1, 1fr)',
-              }}
-              role="presentation"
-            >
-              <Stack alignItems="center" direction="row" justifyContent="space-between" mb={3}>
-                <TextField
-                  onBlur={(e, value) => handleChange(e, value)}
-                  id="docs"
-                  sx={{ width: '65%' }}
-                  label="Question"
-                  placeholder="Getting start doc"
-                />
-                <TextField
-                  onBlur={(e, value) => handleChange(e, value)}
-                  id="docs"
-                  sx={{ width: '30%' }}
-                  label="Squire"
-                  placeholder="Getting start doc"
-                />
-              </Stack>
-            </Box>
-
-          </Drawer>
           <Grid item xs={4}>
             <CompanyList
               comInfo={comInfo}
@@ -187,9 +184,58 @@ export default function HappinessFactor() {
               comList={comList}
               setComList={setComList} />
           </Grid>
+          <Stack direction="row" justifyContent="end" pl={2}>
+            <Button
+              onClick={handleAddQsn}
+              variant="outlined"
+            >Add Question
+            </Button>
+          </Stack>
         </Grid>
+        <Drawer
+          anchor='right'
+          open={state}
+          onClose={() => setState(false)}
+        >
+          <Box
+            sx={boxStyle}
+            role="presentation"
+          >
+            <Stack alignItems="center" direction="row" justifyContent="space-between" >
 
-        {[1, 2, 3, 45, 5].map((item, index) => <QuestionCard />)}
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="question"
+                sx={{ width: '65%' }}
+                label="Question"
+                placeholder="Getting start doc"
+              />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="status"
+                type="number"
+                sx={{ width: '33%' }}
+                label="status"
+                placeholder="status"
+              />
+            </Stack>
+            <Stack alignItems="center" justifyContent="center">
+              <Button
+                onClick={() => editId ? onSubmit(editId) : onSubmit(false)}
+                variant="outlined"
+              >{editId ? "UPdate" : "Save"}
+              </Button>
+            </Stack>
+          </Box>
+
+        </Drawer>
+        {happinessQsns?.map(happinessQsn =>
+          <HappyCard
+            key={happinessQsn.id}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+            happinessQsn={happinessQsn}
+          />)}
         <Drawer
           anchor='right'
           open={openDrawer}
@@ -198,42 +244,47 @@ export default function HappinessFactor() {
           <Box sx={{ width: 450 }} mb={3} >
             <Stack
               role="presentation"
-              sx={{
-                p: "10px", mt: "50px"
-              }}
+              sx={{ p: "10px", mt: "50px" }}
               spacing={2}
             >
-              <TextField
-                onBlur={(e, value) => handleChange(e, value)}
-                id="drawerId"
-                label="drawerId"
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  handleAssessInfo(newValue);
+                }}
+                multiple
+                options={allQuestion}
+                disableCloseOnSelect
+                getOptionLabel={(option) => option?.question}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
+
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option?.question}
+                  </li>
+                )}
+                style={{ width: 420 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Question" placeholder="Favorites" />
+                )}
               />
               <Stack direction="row" alignItems="center" justifyContent="center">
                 <Button
                   color="success"
-                  onClick={() => onSubmit("drawerId")}
+                  onClick={handleAssessmentSubmit}
                   sx={{ width: '30%' }}
                   variant="outlined" >
                   Save
                 </Button>
               </Stack>
-              {staterInfo?.map((info, index) =>
-                <Card sx={{
-                  display: 'flex', justifyContent: 'space-between', p: "10px", boxShadow: 3
-                }} key={index}>
-                  <Typography mt={2}>{info?.industry || info?.department || info?.location || info?.role}</Typography>
-                  <Button onClick={() => handleDelete(info.id,)} style={{ marginLeft: 10 }} color="error" variant="outlined" >Delete</Button>
-                </Card>
-              )}
-
-
             </Stack>
           </Box>
-
-
-
         </Drawer>
-      </Card>
+      </Card >
     </Page >
   );
 }
