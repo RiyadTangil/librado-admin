@@ -163,7 +163,7 @@ export default function CreateCompany() {
   const onSubmit = (e) => {
     const loading = toast.loading('Please wait...!');
     e.preventDefault()
-    fetch('http://localhost:3333/addCompany', {
+    fetch('https://lib.evamp.in/addCompany', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -194,7 +194,7 @@ export default function CreateCompany() {
       })
   }
   useEffect(() => {
-    fetch("http://localhost:3333/getCompany")
+    fetch("https://lib.evamp.in/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
   }, [responseData])

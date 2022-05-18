@@ -31,7 +31,7 @@ export default function Welcome() {
     newObject[id] = comInfo[id]
     const capitalizeId = id.charAt(0).toUpperCase() + id.slice(1);
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/add${capitalizeId}`, {
+    fetch(`https://lib.evamp.in/add${capitalizeId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -57,7 +57,7 @@ export default function Welcome() {
   const handleDelete = (id, drawerId) => {
     const capitalizeId = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/delete${capitalizeId}/${id}`, {
+    fetch(`https://lib.evamp.in/delete${capitalizeId}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -79,7 +79,7 @@ export default function Welcome() {
       })
   }
   useEffect(() => {
-    fetch("http://localhost:3333/getAllWelcomeInfo")
+    fetch("https://lib.evamp.in/getAllWelcomeInfo")
       .then(res => res.json())
       .then(data => {
         setLocation(data?.location)
@@ -94,7 +94,7 @@ export default function Welcome() {
     }
   }, [industries, department, roles, location])
   useEffect(() => {
-    fetch("http://localhost:3333/getCompany")
+    fetch("https://lib.evamp.in/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
   }, [])

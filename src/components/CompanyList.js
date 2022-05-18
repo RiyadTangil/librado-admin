@@ -8,7 +8,7 @@ export default function CompanyList({ setComInfo, comInfo, comList, setComList }
         setComInfo(newInfo);
     }
     useEffect(() => {
-        fetch("http://localhost:3333/getCompany")
+        fetch("https://lib.evamp.in/getCompany")
             .then(res => res.json())
             .then(data => setComList(data))
     }, [])
@@ -16,10 +16,10 @@ export default function CompanyList({ setComInfo, comInfo, comList, setComList }
     return (
         <Autocomplete
             disablePortal
-            onChange={(event, newValue) => handleChange(event, newValue.id)}
             id="company_id"
             name="first"
             fullWidth
+            onChange={(event, newValue) => handleChange(event, newValue.id)}
             getOptionLabel={option => option.company_name}
             options={comList}
             renderInput={(params) =>

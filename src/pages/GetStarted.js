@@ -23,7 +23,7 @@ export default function GetStarted() {
   const onSubmit = () => {
     const loading = toast.loading('Please wait...!');
     console.log(comInfo?.company_id, "comInfo?.company_id")
-    fetch(`http://localhost:3333/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
+    fetch(`https://lib.evamp.in/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
       method: `${staterInfo ? 'PUT' : 'POST'}`,
       headers: {
         'Content-Type': 'application/Json'
@@ -39,7 +39,7 @@ export default function GetStarted() {
         setResponseData(data.data);
         if (!data.error) {
 
-          return swal(`GettingInfo ${staterInfo ? "updated" : "added"}`, `GettingInfo has been ${staterInfo ? "updated" : "added"} successful.`, "success");
+          return swal(`Getting Info ${staterInfo ? "updated" : "added"}`, `GettingInfo has been ${staterInfo ? "updated" : "added"} successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -50,7 +50,7 @@ export default function GetStarted() {
   }
   const handleDelete = () => {
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteGettingInfo/${staterInfo.id}`, {
+    fetch(`https://lib.evamp.in/deleteGettingInfo/${staterInfo.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -80,7 +80,7 @@ export default function GetStarted() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getStarterInfo/${comInfo?.company_id}`)
+      fetch(`https://lib.evamp.in/getStarterInfo/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStaterInfo(data?.data[0]?.getting_starts))
     }
@@ -98,7 +98,7 @@ export default function GetStarted() {
           <Grid item xs={5}>
 
             <Box display="flex" alignItems="center" justifyContent="end">
-              <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" > Reset</Button>
+               
               {staterInfo &&
                 <Button
                   onClick={handleDelete}
@@ -106,7 +106,7 @@ export default function GetStarted() {
                   size="large"
                   color="error"
                   variant="outlined"
-                >Delete
+                >Reset
                 </Button>}
               <Button onClick={checkCompanySelector} color="secondary" size="large" variant="outlined" >Edit Content</Button>
             </Box>

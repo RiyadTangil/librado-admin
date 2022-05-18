@@ -1,4 +1,3 @@
-
 import { Link as RouterLink } from 'react-router-dom';
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
@@ -12,16 +11,6 @@ import QuestionCard from '../components/QuestionCard';
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
-//
-
-
-// ----------------------------------------------------------------------
-
-const SORT_OPTIONS = [
-  { value: 'latest', label: 'Latest' },
-  { value: 'popular', label: 'Popular' },
-  { value: 'oldest', label: 'Oldest' }
-];
 
 // ----------------------------------------------------------------------
 export default function Question() {
@@ -32,10 +21,16 @@ export default function Question() {
   const [questions, setQuestions] = useState([]);
   const [option, setOption] = useState([1]);
   const [optionInfo, setOptionInfo] = useState([]);
-  const handleChange = (e, value) => {
+  const handleChange = (e, value = 0) => {
     const newInfo = { ...comInfo };
-    newInfo[e.target.id.split('-')[0]] = e.target.value;
-    setComInfo(newInfo);
+    if (value) {
+      console.log(comInfo, "enterd")
+      newInfo[e.target.id.split('-')[0]] = value
+    }
+    else {
+      newInfo[e.target.id.split('-')[0]] = e.target.value;
+      setComInfo(newInfo);
+    }
     console.log(comInfo, "comInfo")
   }
   const handleOptionValue = (e, value, item) => {
@@ -50,7 +45,7 @@ export default function Question() {
   const onSubmit = (e) => {
     const loading = toast.loading('Please wait...!');
     e.preventDefault()
-    fetch('http://localhost:3333/addQuestion/1', {
+    fetch('https://lib.evamp.in/addQuestion/3', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -83,7 +78,7 @@ export default function Question() {
   const handleDelete = (id) => {
 
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteQuestion/${id}`, {
+    fetch(`https://lib.evamp.in/deleteQuestion/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -108,10 +103,15 @@ export default function Question() {
     console.log("delete", id)
   }
   useEffect(() => {
-    fetch("http://localhost:3333/questionByCategory")
+    fetch("https://lib.evamp.in/questionByCategory")
+      .then(res => res.json())
+      .then(data => setQuestions(data?.data))
+  }, [reload])
+  useEffect(() => {
+    fetch("https://lib.evamp.in/getCategories")
       .then(res => res.json())
       .then(data => setCategories(data?.data))
-  }, [reload])
+  }, [])
   const btn = {
     position: 'absolute',
     right: '0',
@@ -129,7 +129,7 @@ export default function Question() {
         <Grid container spacing={1.5}>
           <Grid item xs={5}>
             <Typography variant="h4" gutterBottom>
-              Operational Category
+              Operational  Diagnostics
             </Typography>
           </Grid>
           <Grid item xs={3}>
@@ -139,20 +139,30 @@ export default function Question() {
             </Box>
 
           </Grid>
+
+
+          <Grid item xs={4}>
+            <Autocomplete
+              disablePortal
+              onChange={(event, newValue) => handleChange(event, newValue.id)}
+              getOptionLabel={option => option.category_name}
+              id="category_id"
+              options={categories}
+              renderInput={(params) => <TextField {...params} label="Category" />}
+            />
+          </Grid>
           <Drawer
             anchor='right'
             open={state}
             onClose={() => setState(false)}
           >
             <Stack alignItems="center" justifyContent="center" mb={5}>
-
               <Button
                 onClick={onSubmit}
                 sx={{
                   position: 'absolute',
                   marginTop: '10px',
                   marginRight: '10px',
-
                   right: '0',
                   top: '0',
                 }} variant="outlined" >Save </Button>
@@ -216,29 +226,8 @@ export default function Question() {
             </Box>
 
           </Drawer>
-
-          <Grid item xs={4}>
-            <Autocomplete
-              disablePortal
-              onChange={(e, value) => handleChange(e, value)}
-              id="company"
-              options={options}
-              renderInput={(params) => <TextField {...params} label="Company Name" />}
-            />
-          </Grid>
         </Grid>
-        <Stack direction="row" justifyContent="end">
-          <Autocomplete
-            sx={{ width: '33%', mt: 3 }}
-            onChange={(e, value) => handleChange(e, value)}
-            id="company"
-
-            options={options}
-            renderInput={(params) => <TextField {...params} label="Question Category" />}
-          />
-
-        </Stack>
-        {categories?.map(category => (
+        {questions?.map(category => (
           category?.questions?.map((question, index) => (
             <QuestionCard handleDelete={handleDelete} question={question} key={index + 1} />
           ))
