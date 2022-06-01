@@ -34,7 +34,7 @@ export default function HappinessFactor() {
   }
   const onSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/${id ? `updateHappinessQsn/${id}` : "addHappinessQsn"}`, {
+    fetch(`http://localhost:3333/${id ? `updateHappinessQsn/${id}` : "addHappinessQsn"}`, {
       method: id ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -62,7 +62,7 @@ export default function HappinessFactor() {
   }
   const handleAssessmentSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/addHappyAssessInfo/${comInfo.company_id}`, {
+    fetch(`http://localhost:3333/addHappyAssessInfo/${comInfo.company_id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -88,7 +88,7 @@ export default function HappinessFactor() {
   }
   const handleDelete = (id, status) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/${status ? "deleteHappyAssessInfo" : "deleteHappinessQsn"}/${id}`, {
+    fetch(`http://localhost:3333/${status ? "deleteHappyAssessInfo" : "deleteHappinessQsn"}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -118,14 +118,14 @@ export default function HappinessFactor() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://lib.evamp.in/getCompanyAssessInfo/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyAssessInfo/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.happiness_assessment))
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
 
-    fetch("https://lib.evamp.in/getHappinessQsn")
+    fetch("http://localhost:3333/getHappinessQsn")
       .then(res => res.json())
       .then(data => {
         setHappinessQs(data)

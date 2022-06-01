@@ -43,7 +43,7 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Register() {
   return (
-    <RootStyle title="Register | Minimal-UI">
+    <RootStyle title="Register | Librado">
       <AuthLayout>
         Already have an account? &nbsp;
         <Link underline="none" variant="subtitle2" component={RouterLink} to="/login">

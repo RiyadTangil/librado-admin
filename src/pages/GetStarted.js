@@ -23,7 +23,7 @@ export default function GetStarted() {
   const onSubmit = () => {
     const loading = toast.loading('Please wait...!');
     console.log(comInfo?.company_id, "comInfo?.company_id")
-    fetch(`https://lib.evamp.in/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
+    fetch(`http://localhost:3333/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
       method: `${staterInfo ? 'PUT' : 'POST'}`,
       headers: {
         'Content-Type': 'application/Json'
@@ -50,7 +50,7 @@ export default function GetStarted() {
   }
   const handleDelete = () => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/deleteGettingInfo/${staterInfo.id}`, {
+    fetch(`http://localhost:3333/deleteGettingInfo/${staterInfo.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -80,7 +80,7 @@ export default function GetStarted() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://lib.evamp.in/getStarterInfo/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getStarterInfo/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStaterInfo(data?.data[0]?.getting_starts))
     }

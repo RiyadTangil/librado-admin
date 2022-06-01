@@ -18,8 +18,8 @@ import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-export default function LoginForm() {
-  const navigate = useNavigate();
+export default function LoginForm({ handleLogin, logState }) {
+
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
@@ -34,8 +34,8 @@ export default function LoginForm() {
       remember: true
     },
     validationSchema: LoginSchema,
-    onSubmit: () => {
-      navigate('/dashboard/app', { replace: true });
+    onSubmit: (data) => {
+      handleLogin(data)
     }
   });
 
@@ -95,7 +95,7 @@ export default function LoginForm() {
           size="large"
           type="submit"
           variant="contained"
-          loading={isSubmitting}
+
         >
           Login
         </LoadingButton>

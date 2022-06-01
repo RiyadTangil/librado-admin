@@ -35,7 +35,7 @@ export default function Statements() {
   }
   const onSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/${id ? `updateStatementQsn/${id}` : "addStatementQsn"}`, {
+    fetch(`http://localhost:3333/${id ? `updateStatementQsn/${id}` : "addStatementQsn"}`, {
       method: id ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -62,7 +62,7 @@ export default function Statements() {
   }
   const handleAssessmentSubmit = (id) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/addStatementAssessInfo/${comInfo.company_id}`, {
+    fetch(`http://localhost:3333/addStatementAssessInfo/${comInfo.company_id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -89,7 +89,7 @@ export default function Statements() {
   }
   const handleDelete = (id, status) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/${status ? "deleteStatementAssessInfo" : "deleteStatementQsn"}/${id}`, {
+    fetch(`http://localhost:3333/${status ? "deleteStatementAssessInfo" : "deleteStatementQsn"}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -119,13 +119,13 @@ export default function Statements() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://lib.evamp.in/getCompanyStatementInfo/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyStatementInfo/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.selectable_statement))
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
-    fetch("https://lib.evamp.in/getStatementQsn")
+    fetch("http://localhost:3333/getStatementQsn")
       .then(res => res.json())
       .then(data => {
         setStatementQsn(data)

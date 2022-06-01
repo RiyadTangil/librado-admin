@@ -26,7 +26,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
     const handleAssesSubmit = () => {
 
         const loading = toast.loading('Please wait...!');
-        fetch(`https://lib.evamp.in/addAssessmentInfo/${comInfo.company_id}`, {
+        fetch(`http://localhost:3333/addAssessmentInfo/${comInfo.company_id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/Json'

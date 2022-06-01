@@ -24,14 +24,13 @@ export default function Question() {
   const handleChange = (e, value = 0) => {
     const newInfo = { ...comInfo };
     if (value) {
-      console.log(comInfo, "enterd")
       newInfo[e.target.id.split('-')[0]] = value
+      setComInfo(newInfo);
     }
     else {
       newInfo[e.target.id.split('-')[0]] = e.target.value;
       setComInfo(newInfo);
     }
-    console.log(comInfo, "comInfo")
   }
   const handleOptionValue = (e, value, item) => {
 
@@ -40,12 +39,10 @@ export default function Question() {
 
 
   }
-  const options = ['The Godfather', 'Pulp Fiction'];
-
   const onSubmit = (e) => {
     const loading = toast.loading('Please wait...!');
     e.preventDefault()
-    fetch('https://lib.evamp.in/addQuestion/3', {
+    fetch(`http://localhost:3333/addQuestion/${comInfo?.category_id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -63,6 +60,7 @@ export default function Question() {
       .then(data => {
         toast.dismiss(loading);
         setReload(!reload);
+        setOptionInfo([])
 
         if (!data.error) {
 
@@ -78,7 +76,7 @@ export default function Question() {
   const handleDelete = (id) => {
 
     const loading = toast.loading('Please wait...!');
-    fetch(`https://lib.evamp.in/deleteQuestion/${id}`, {
+    fetch(`http://localhost:3333/deleteQuestion/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -103,12 +101,12 @@ export default function Question() {
     console.log("delete", id)
   }
   useEffect(() => {
-    fetch("https://lib.evamp.in/questionByCategory")
+    fetch("http://localhost:3333/questionByCategory")
       .then(res => res.json())
       .then(data => setQuestions(data?.data))
   }, [reload])
   useEffect(() => {
-    fetch("https://lib.evamp.in/getCategories")
+    fetch("http://localhost:3333/getCategories")
       .then(res => res.json())
       .then(data => setCategories(data?.data))
   }, [])

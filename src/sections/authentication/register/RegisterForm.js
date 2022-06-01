@@ -33,7 +33,7 @@ export default function RegisterForm() {
     },
     validationSchema: RegisterSchema,
     onSubmit: (data) => {
-      navigate('/dashboard', { replace: true });
+      // navigate('/dashboard', { replace: true });
       console.log('working', data);
     }
   });

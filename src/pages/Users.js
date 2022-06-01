@@ -1,26 +1,24 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer, InputAdornment, IconButton } from '@mui/material';
 // components
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
-import HappyCard from '../components/HappyCard';
-
+import UserCard from '../components/UserCard';
+import Iconify from '../components/Iconify';
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-
-// ----------------------------------------------------------------------
-export default function Category() {
+export default function Users() {
   const [comList, setComList] = useState([]);
   const [happyAssessInfo, setHappyAssessInfo] = useState(null);
   const [responseData, setResponseData] = useState([]);
   const [allQuestion, setAllQuestion] = useState([]);
-  const [categories, setCategory] = useState([]);
+  const [users, setUsers] = useState([]);
   const [comInfo, setComInfo] = useState([])
   const [editId, setEditId] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -29,21 +27,26 @@ export default function Category() {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
+
   }
   const handleAssessInfo = (value) => {
     const newInfo = { ...comInfo };
-    newInfo.categories = value;
+    newInfo.account_type = value;
     setComInfo(newInfo);
+
   }
   const onSubmit = (id) => {
+    // {email: 'admin@gmail.com', password: '111111', account_type: 'Admin'} '2nd'
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${id ? `updateCategory/${id}` : "addCategory"}`, {
-      method: id ? 'PUT' : 'POST',
+    fetch(`http://localhost:3333/registerUser`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
       },
       body: JSON.stringify({
-        category_name: comInfo?.category_name,
+        email: comInfo?.email,
+        password: comInfo?.password,
+        account_type: comInfo?.account_type,
 
       })
     })
@@ -53,13 +56,13 @@ export default function Category() {
         setResponseData(data.data);
         if (!data.error) {
 
-          return swal(`Category ${id ? "updated" : "added"} `, `Category has been ${id ? "updated" : "added"} successful.`, "success");
+          return swal("User added", `User has beeadded successful.`, "success");
         }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+        swal("Failed!", data?.error?.message || "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
       .catch(error => {
         toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+        swal("Failed!", error?.message || "Something went wrong! Please try again.", "error", "error", { dangerMode: true });
       })
   }
   const handleAssessmentSubmit = (id) => {
@@ -90,7 +93,7 @@ export default function Category() {
   }
   const handleDelete = (id, status) => {
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${status ? "deleteCategoryAssessment" : "deleteCategory"}/${id}`, {
+    fetch(`http://localhost:3333/deleteUser/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -101,7 +104,7 @@ export default function Category() {
         toast.dismiss(loading);
         if (data.success) {
           setResponseData(data);
-          return swal(`${status ? "Category Info" : "Category"} Deleted`, `${status ? "Category Info" : "Category Qsn"} has been Deleted successful.`, "success");
+          return swal(`User Deleted`, "User has been Deleted successful.", "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -126,20 +129,14 @@ export default function Category() {
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
-    fetch("http://localhost:3333/getCategories")
+    fetch("http://localhost:3333/getUsers")
       .then(res => res.json())
       .then(data => {
-        setCategory(data?.data)
-        setAllQuestion(data?.data?.map(item => item?.category_name))
-
+        setUsers(data?.data)
       })
 
   }, [responseData])
-  const handleEdit = (id) => {
-    setEditId(id)
-    setState(!state)
 
-  }
   const handleAddQsn = () => {
     setEditId(null)
     setState(!state)
@@ -155,42 +152,19 @@ export default function Category() {
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
 
-        <Grid container >
-          <Grid item xs={4}>
-            <Typography variant="h4" gutterBottom>
-              Category
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Box display="flex" alignItems="center" justifyContent="end">
+        <Stack direction="row" justifyContent="space-between" >
+          <Typography variant="h4" gutterBottom>
+            Users
+          </Typography>
 
-              {happyAssessInfo &&
-                  <Button
-                  onClick={() => handleDelete(happyAssessInfo?.id, true)}
-                  style={{ marginRight: 10 }}
-                  size="large"
-                  color="error"
-                  variant="outlined"
-                >Reset
-                </Button>}
-              <Button onClick={checkCompanySelector} color="secondary" size="large" variant="outlined" >Edit Content</Button>
-            </Box>
-          </Grid>
-          <Grid item ml={2} xs={3}>
-            <CompanyList
-              comInfo={comInfo}
-              setComInfo={setComInfo}
-              comList={comList}
-              setComList={setComList} />
-          </Grid>
-          <Stack direction="row" justifyContent="end" pl={2}>
+          <Stack direction="row" pl={2}>
             <Button
               onClick={handleAddQsn}
               variant="outlined"
-            >Add Category
+            >Add User
             </Button>
           </Stack>
-        </Grid>
+        </Stack>
         <Drawer
           anchor='right'
           open={state}
@@ -200,14 +174,46 @@ export default function Category() {
             sx={boxStyle}
             role="presentation"
           >
-            <Stack alignItems="center" direction="row" justifyContent="space-between" >
+            <Stack alignItems="center" >
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
-                id="category_name"
-                sx={{ width: '100%' }}
-                label="category name"
-                placeholder="category name"
+                id="email"
+                sx={{ width: '100%', marginBottom: '10px' }}
+                label="User Email"
+                placeholder="User Email"
               />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="password"
+                sx={{ width: '100%', marginBottom: '10px' }}
+                label="password"
+                placeholder="password"
+              />
+
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  handleAssessInfo(newValue);
+                }}
+
+                options={["Admin", "User"]}
+                disableCloseOnSelect
+                getOptionLabel={(option) => option}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
+
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option}
+                  </li>
+                )}
+                style={{ width: 420 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Question" placeholder="Favorites" />
+                )} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
@@ -220,12 +226,11 @@ export default function Category() {
           </Box>
 
         </Drawer>
-        {categories?.map(qsn =>
-          <HappyCard
-            key={qsn.id}
+        {users?.map(user =>
+          <UserCard
+            key={user.id}
             handleDelete={handleDelete}
-            handleEdit={handleEdit}
-            qsn={qsn}
+            user={user}
           />)}
         <Drawer
           anchor='right'

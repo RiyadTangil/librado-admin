@@ -17,6 +17,7 @@ import HappinessFactor from './pages/HappinessFactor';
 import Statements from './pages/Statements';
 import Reports from './pages/Reports';
 import Category from './pages/Category';
+import Users from './pages/Users';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ export default function Router() {
         { path: 'happiness-factor', element: <HappinessFactor /> },
         { path: 'statements', element: <Statements /> },
         { path: 'category', element: <Category /> },
+        { path: 'users', element: <Users /> },
         { path: 'reports', element: <Reports /> }
       ]
     },

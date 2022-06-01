@@ -1,4 +1,7 @@
-import { Link as RouterLink } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useState } from 'react';
+import swal from 'sweetalert';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
 import { Card, Stack, Link, Container, Typography, Box } from '@mui/material';
@@ -39,17 +42,52 @@ const ContentStyle = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0)
 }));
 
+
 // ----------------------------------------------------------------------
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [logState, setLogState] = useState(false)
+  const handleLogin = (info) => {
+
+    console.log('login info', info);
+    const loading = toast.loading('Please wait...!');
+    fetch("http://localhost:3333/login", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+      body: JSON.stringify({
+        email: info.email,
+        password: info.password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        // setResponseData(data.data);
+        if (!data.error) {
+          navigate('/dashboard/app', { replace: true });
+          toast.success(' logged in Successfully!')
+          return
+        }
+        setLogState(true)
+        toast.error("Something went wrong! Please try again.")
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        setLogState(true)
+        toast.error("Something went wrong! Please try again.")
+      })
+  }
   return (
     <RootStyle title="Login">
-      <AuthLayout>
+      {/* <AuthLayout>
         Don’t have an account? &nbsp;
         <Link underline="none" variant="subtitle2" component={RouterLink} to="/register">
           Get started
         </Link>
-      </AuthLayout>
+      </AuthLayout> */}
 
       <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
         {/* <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -70,7 +108,7 @@ export default function Login() {
           </Box>
           {/* <AuthSocial /> */}
 
-          <LoginForm />
+          <LoginForm handleLogin={handleLogin} logState={logState} />
 
           <Typography
             variant="body2"

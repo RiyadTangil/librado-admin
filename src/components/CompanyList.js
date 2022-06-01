@@ -8,7 +8,7 @@ export default function CompanyList({ setComInfo, comInfo, comList, setComList }
         setComInfo(newInfo);
     }
     useEffect(() => {
-        fetch("https://lib.evamp.in/getCompany")
+        fetch("http://localhost:3333/getCompany")
             .then(res => res.json())
             .then(data => setComList(data))
     }, [])
