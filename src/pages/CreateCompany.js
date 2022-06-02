@@ -186,11 +186,33 @@ export default function CreateCompany() {
 
           return swal("Company Added", "Company has been added successful.", "success");
         }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+        swal("Failed!", data?.error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
       })
       .catch(error => {
         toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+        swal("Failed!", error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
+      })
+  }
+  const handleDelete = (id) => {
+    const loading = toast.loading('Please wait...!');
+    fetch(`http://localhost:3333/deleteCompany/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/Json'
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        toast.dismiss(loading);
+        setResponseData(data.data);
+        if (!data.error) {
+          return swal("Company deleted", "Company has been deleted successful.", "success");
+        }
+        swal("Failed!", data?.error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
+      })
+      .catch(error => {
+        toast.dismiss(loading);
+        swal("Failed!", error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
       })
   }
   useEffect(() => {
@@ -198,7 +220,7 @@ export default function CreateCompany() {
       .then(res => res.json())
       .then(data => setComList(data))
   }, [responseData])
-
+  
   const handleClipboard = async (id) => {
     navigator.clipboard.writeText(id);
   }
@@ -328,14 +350,14 @@ export default function CreateCompany() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {comList?.map((row, index) => {
+                  {comList?.map((company, index) => {
 
-                    const isItemSelected = selected.indexOf(row?.name) !== -1;
+                    const isItemSelected = selected.indexOf(company?.name) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={row?.name}
+                        key={company?.name}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
@@ -355,15 +377,15 @@ export default function CreateCompany() {
 
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">  <Avatar alt={row?.name} src="https://i.ibb.co/hFpDTpy/download.png" /></TableCell>
-                        <TableCell align="left">{row?.name}</TableCell>
-                        <TableCell align="left">{row?.company_name}</TableCell>
-                        <TableCell align="left">{row?.email}</TableCell>
+                        <TableCell align="left">  <Avatar alt={company?.name} src="https://i.ibb.co/hFpDTpy/download.png" /></TableCell>
+                        <TableCell align="left">{company?.name}</TableCell>
+                        <TableCell align="left">{company?.company_name}</TableCell>
+                        <TableCell align="left">{company?.email}</TableCell>
                         <TableCell align="left">
                           <IconButton
                             aria-label="toggle password visibility"
                             edge="end"
-                            onClick={() => handleClipboard(row?.unique_id)}
+                            onClick={() => handleClipboard(company?.unique_id)}
                           >
                             <Iconify icon="akar-icons:copy" />
                           </IconButton>
@@ -371,7 +393,7 @@ export default function CreateCompany() {
 
 
                         <TableCell align="right">
-                          <UserMoreMenu />
+                          <UserMoreMenu company={company} handleDelete={handleDelete} />
                         </TableCell>
                       </TableRow>
                     );

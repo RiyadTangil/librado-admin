@@ -36,8 +36,14 @@ export default function Question() {
 
     const newInfo = { value: item, option: e.target.value };
     setOptionInfo([...optionInfo, newInfo]);
-
-
+  }
+  const checkCompanySelector = () => {
+    if (comInfo.category_id) {
+      setState(true)
+    }
+    else {
+      swal("Failed!", "Please select a Category and  try again.", "error", { dangerMode: true });
+    }
   }
   const onSubmit = (e) => {
     const loading = toast.loading('Please wait...!');
@@ -132,8 +138,8 @@ export default function Question() {
           </Grid>
           <Grid item xs={3}>
             <Box display="flex" alignItems="center" justifyContent="end">
-              <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" >Reset</Button>
-              <Button onClick={() => setState(true)} color="secondary" size="large" variant="outlined" >Add Question</Button>
+
+              <Button onClick={checkCompanySelector} color="secondary" size="large" variant="outlined" >Add Question</Button>
             </Box>
 
           </Grid>

@@ -113,14 +113,7 @@ export default function Users() {
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
   }
-  const checkCompanySelector = () => {
-    if (comInfo.company_id) {
-      setOpenDrawer(!false)
-    }
-    else {
-      swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
-    }
-  }
+
   useEffect(() => {
     if (comInfo?.company_id) {
       fetch(`http://localhost:3333/getCategoryAssessment/${comInfo?.company_id}`)

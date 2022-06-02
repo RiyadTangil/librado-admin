@@ -11,6 +11,7 @@ import CompanyList from '../CompanyList';
 export default function AddCompnayInfo({ industries, department, roles, location }) {
     const [comList, setComList] = useState([]);
     const [comInfo, setComInfo] = useState([])
+    const [assessInfo, setAssessInfo] = useState(null);
     const [allIndustries, setIndustries] = useState([])
     const [allDepartment, setAllDepartment] = useState([])
     const [allRoles, setAllRoles] = useState([])
@@ -24,9 +25,8 @@ export default function AddCompnayInfo({ industries, department, roles, location
     }
 
     const handleAssesSubmit = () => {
-
         const loading = toast.loading('Please wait...!');
-        fetch(`http://localhost:3333/addAssessmentInfo/${comInfo.company_id}`, {
+        fetch(`http://localhost:3333/addWelcomeAssess/${comInfo.company_id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/Json'
@@ -61,6 +61,37 @@ export default function AddCompnayInfo({ industries, department, roles, location
         setAllRoles(roles?.map(info => (info.role)))
         setAllLocation(location?.map(info => (info.location)))
     }, [industries, department, roles, location])
+    const handleAssessDelete = (id) => {
+        console.log(id, "id")
+        const loading = toast.loading('Please wait...!');
+        fetch(`http://localhost:3333/deleteWelcomeAssesInfo/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/Json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                toast.dismiss(loading);
+                if (data.success) {
+                    setReload(!reload);
+                    return swal(`Welcome Info added`, `Welcome Info has been Deleted successful.`, "success");
+                }
+                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+            })
+            .catch(error => {
+                toast.dismiss(loading);
+                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+            })
+    }
+    useEffect(() => {
+
+        if (comInfo?.company_id) {
+            fetch(`http://localhost:3333/getWelcomeAssesById/${comInfo?.company_id}`)
+                .then(res => res.json())
+                .then(data => setAssessInfo(data?.data[0]?.assessment_info))
+        }
+    }, [comInfo?.company_id, reload])
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
     const checkCompanySelector = () => {
@@ -81,7 +112,16 @@ export default function AddCompnayInfo({ industries, department, roles, location
             <Grid item xs={3}>
 
                 <Box display="flex" alignItems="center" justifyContent="end">
-                    <Button style={{ marginRight: 10 }} size="large" color="error" variant="outlined" >Reset</Button>
+                    {assessInfo &&
+                        <Button
+                            onClick={() => handleAssessDelete(assessInfo?.id)}
+                            style={{ marginRight: 10 }}
+                            size="large"
+                            color="error"
+                            variant="outlined"
+                        >Reset
+                        </Button>}
+
                     <Button onClick={checkCompanySelector} color="secondary" size="large" variant="outlined" >Edit Content</Button>
                 </Box>
 

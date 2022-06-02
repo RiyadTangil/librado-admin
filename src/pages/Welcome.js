@@ -18,6 +18,7 @@ export default function Welcome() {
   const [comInfo, setComInfo] = useState([])
   const [reload, setReload] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false);
+
   const [drawerId, setDrawerId] = useState("");
   const [drawerInfo, setDrawerInfo] = useState([])
   const handleChange = (e, value) => {
@@ -78,6 +79,7 @@ export default function Welcome() {
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
   }
+
   useEffect(() => {
     fetch("http://localhost:3333/getAllWelcomeInfo")
       .then(res => res.json())
@@ -98,6 +100,7 @@ export default function Welcome() {
       .then(res => res.json())
       .then(data => setComList(data))
   }, [])
+
   const handleDrawerOpen = (id) => {
     setOpenDrawer(true)
     setDrawerId(id)
