@@ -33,7 +33,6 @@ export default function Users() {
     const newInfo = { ...comInfo };
     newInfo.account_type = value;
     setComInfo(newInfo);
-
   }
   const onSubmit = (id) => {
     // {email: 'admin@gmail.com', password: '111111', account_type: 'Admin'} '2nd'

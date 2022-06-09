@@ -19,6 +19,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
     const [reload, setReload] = useState(false)
     const [state, setState] = useState(false);
     const handleAssessInfo = (id, info) => {
+
         const newInfo = { ...comInfo };
         newInfo[id] = info;
         setComInfo(newInfo);
@@ -75,7 +76,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
                 toast.dismiss(loading);
                 if (data.success) {
                     setReload(!reload);
-                    return swal(`Welcome Info added`, `Welcome Info has been Deleted successful.`, "success");
+                    return swal(`Welcome Info Deleted`, `Welcome Info has been Deleted successful.`, "success");
                 }
                 swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
             })
@@ -95,11 +96,13 @@ export default function AddCompnayInfo({ industries, department, roles, location
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
     const checkCompanySelector = () => {
-        if (comInfo.company_id) {
+        // comList?.assessment_info
+        console.log(comList[0]?.assessment_info, "comList?.assessment_info")
+        if (comInfo.company_id && !comList[0]?.assessment_info) {
             setState(!false)
         }
         else {
-            swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
+            swal("Failed!", `${!comList[0]?.assessment_info ? "Please select a Company and  try again." : "Please reset the information to add again"} `, "error", { dangerMode: true });
         }
     }
     return (
@@ -127,7 +130,13 @@ export default function AddCompnayInfo({ industries, department, roles, location
 
             </Grid>
             <Grid item xs={4}>
-                <CompanyList comInfo={comInfo} setComInfo={setComInfo} comList={comList} setComList={setComList} />
+                <CompanyList
+                    comInfo={comInfo}
+                    setComInfo={setComInfo}
+                    comList={comList}
+                    reload={reload}
+                    setComList={setComList}
+                />
             </Grid>
             <Drawer
                 anchor='right'
@@ -155,11 +164,12 @@ export default function AddCompnayInfo({ industries, department, roles, location
                     role="presentation"
                 >
                     <TextField
+                        onBlur={(e) => handleAssessInfo("welcome_text", e.target.value)}
                         id="welcome_text"
                         label="Multiline"
                         multiline
                         rows={4}
-                        defaultValue="Default Value"
+                        placeholder="Enter Welcome Text"
                     />
 
                     <Autocomplete
@@ -168,7 +178,6 @@ export default function AddCompnayInfo({ industries, department, roles, location
                             handleAssessInfo("all_industry", newValue);
                         }}
                         multiple
-
                         options={allIndustries}
                         disableCloseOnSelect
                         getOptionLabel={(option) => option}

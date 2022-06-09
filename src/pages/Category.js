@@ -30,9 +30,9 @@ export default function Category() {
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
   }
-  const handleAssessInfo = (value) => {
+  const handleAssessInfo = (event, selectedCategory) => {
     const newInfo = { ...comInfo };
-    newInfo.categories = value;
+    newInfo.categories = selectedCategory;
     setComInfo(newInfo);
   }
   const onSubmit = (id) => {
@@ -70,12 +70,16 @@ export default function Category() {
         'Content-Type': 'application/Json'
       },
       body: JSON.stringify({
-        categories: comInfo.categories
+        categories: comInfo.categories.map(category => category.id)
       })
     })
       .then(response => response.json())
       .then(data => {
         toast.dismiss(loading);
+        const newInfo = { ...comInfo };
+        newInfo.categories = null;
+        setComInfo(newInfo);
+        
         setResponseData(data.data);
         if (!data.error) {
 
@@ -130,7 +134,8 @@ export default function Category() {
       .then(res => res.json())
       .then(data => {
         setCategory(data?.data)
-        setAllQuestion(data?.data?.map(item => item?.category_name))
+        setAllQuestion(data?.data)
+        // setAllQuestion(data?.data?.map(item => item?.category_name))
 
       })
 
@@ -165,7 +170,7 @@ export default function Category() {
             <Box display="flex" alignItems="center" justifyContent="end">
 
               {happyAssessInfo &&
-                  <Button
+                <Button
                   onClick={() => handleDelete(happyAssessInfo?.id, true)}
                   style={{ marginRight: 10 }}
                   size="large"
@@ -239,13 +244,14 @@ export default function Category() {
               spacing={2}
             >
               <Autocomplete
-                onChange={(event, newValue) => {
-                  handleAssessInfo(newValue);
-                }}
+                // onChange={(event, newValue) => {
+                //   handleAssessInfo(newValue);
+                // }}
+                onChange={(event, newValue) => handleAssessInfo(event, newValue)}
                 multiple
                 options={allQuestion}
                 disableCloseOnSelect
-                getOptionLabel={(option) => option}
+                getOptionLabel={(option) => option.category_name}
                 renderOption={(props, option, { selected }) => (
                   <li {...props}>
                     <Checkbox
@@ -255,7 +261,7 @@ export default function Category() {
                       style={{ marginRight: 8 }}
                       checked={selected}
                     />
-                    {option}
+                    {option.category_name}
                   </li>
                 )}
                 style={{ width: 420 }}
