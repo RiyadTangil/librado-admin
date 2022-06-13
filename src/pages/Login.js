@@ -49,36 +49,36 @@ export default function Login() {
   const navigate = useNavigate();
   const [logState, setLogState] = useState(false)
   const handleLogin = (info) => {
-
-    console.log('login info', info);
-    const loading = toast.loading('Please wait...!');
-    fetch("http://localhost:3333/login", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        email: info.email,
-        password: info.password
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        // setResponseData(data.data);
-        if (!data.error) {
-          navigate('/dashboard/app', { replace: true });
-          toast.success(' logged in Successfully!')
-          return
-        }
-        setLogState(true)
-        toast.error("Something went wrong! Please try again.")
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        setLogState(true)
-        toast.error("Something went wrong! Please try again.")
-      })
+    navigate('/dashboard/app', { replace: true });
+    // console.log('login info', info);
+    // const loading = toast.loading('Please wait...!');
+    // fetch("http://localhost:3333/login", {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/Json'
+    //   },
+    //   body: JSON.stringify({
+    //     email: info.email,
+    //     password: info.password
+    //   })
+    // })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     toast.dismiss(loading);
+    //     // setResponseData(data.data);
+    //     if (!data.error) {
+    //       navigate('/dashboard/app', { replace: true });
+    //       toast.success(' logged in Successfully!')
+    //       return
+    //     }
+    //     setLogState(true)
+    //     toast.error("Something went wrong! Please try again.")
+    //   })
+    //   .catch(error => {
+    //     toast.dismiss(loading);
+    //     setLogState(true)
+    //     toast.error("Something went wrong! Please try again.")
+    //   })
   }
   return (
     <RootStyle title="Login">

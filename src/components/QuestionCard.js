@@ -3,10 +3,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { Box, Button, Card, Typography } from '@mui/material';
 
-export default function QuestionCard({ happiness, question, handleDelete }) {
+export default function QuestionCard({ handleEdit, question, handleDelete }) {
     const parsedOptions = JSON.parse(question?.options)
-
-
     return (
         <Card sx={{ p: 3, mt: 3, backgroundColor: "#F8F9FA" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -16,9 +14,9 @@ export default function QuestionCard({ happiness, question, handleDelete }) {
                     <Button onClick={() => handleDelete(question?.id)} variant="outlined" color="error" startIcon={<DeleteIcon />}>
                         DELETE
                     </Button>
-                    {/* <Button variant="outlined" sx={{ color: "black", marginLeft: "10px" }} startIcon={<Edit />}>
+                    <Button onClick={(e) => handleEdit(e, question?.id)} id="update_id" variant="outlined" sx={{ color: "black", marginLeft: "10px" }} startIcon={<Edit />}>
                         EDIT
-                    </Button> */}
+                    </Button>
 
                 </Box>
             </Box>
@@ -26,10 +24,6 @@ export default function QuestionCard({ happiness, question, handleDelete }) {
                 {parsedOptions?.map((options, index) =>
                     <Typography key={index + 1} variant="p" sx={{ fontWeight: 'light', ml: index === 0 ? 0 : 4 }} > {options?.option}</Typography>
                 )}
-                {/* {[1].map((options, index) =>
-                    <Typography variant="p" sx={{ fontWeight: 'light', ml: 4 }} > hello</Typography>
-                )} */}
-
             </Box>
         </Card >
     );

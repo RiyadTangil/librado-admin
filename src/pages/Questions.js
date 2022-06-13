@@ -45,11 +45,12 @@ export default function Question() {
       swal("Failed!", "Please select a Category and  try again.", "error", { dangerMode: true });
     }
   }
-  const onSubmit = (e) => {
+  const onSubmit = (updatingId) => {
     const loading = toast.loading('Please wait...!');
-    e.preventDefault()
-    fetch(`http://localhost:3333/addQuestion/${comInfo?.category_id}`, {
-      method: 'POST',
+    // e.preventDefault()
+    const id = updatingId ? comInfo?.update_id : comInfo?.category_id
+    fetch(`http://localhost:3333/${updatingId ? "update" : "add"}Question/${id}`, {
+      method: updatingId ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/Json'
       },
@@ -70,7 +71,7 @@ export default function Question() {
 
         if (!data.error) {
 
-          return swal("Question Added", "Question has been added successful.", "success");
+          return swal(`Question ${updatingId ? "updated" : "added"}`, `Question has been ${updatingId ? "updated" : "added"} successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -127,6 +128,14 @@ export default function Question() {
     position: 'relative',
 
   }
+  const handleEdit = (e, id) => {
+    setState(true)
+    const newInfo = { ...comInfo };
+    newInfo[e.target.id.split('-')[0]] = id
+    setComInfo(newInfo);
+    console.log(newInfo, "newInfo")
+
+  }
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -162,7 +171,7 @@ export default function Question() {
           >
             <Stack alignItems="center" justifyContent="center" mb={5}>
               <Button
-                onClick={onSubmit}
+                onClick={() => onSubmit(comInfo?.update_id)}
                 sx={{
                   position: 'absolute',
                   marginTop: '10px',
@@ -233,7 +242,7 @@ export default function Question() {
         </Grid>
         {questions?.map(category => (
           category?.questions?.map((question, index) => (
-            <QuestionCard handleDelete={handleDelete} question={question} key={index + 1} />
+            <QuestionCard handleDelete={handleDelete} handleEdit={handleEdit} question={question} key={index + 1} />
           ))
 
         ))}
