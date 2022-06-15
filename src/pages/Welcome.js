@@ -1,8 +1,10 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 // material
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer, Checkbox } from '@mui/material';
 // components
 import AddCompnayInfo from '../components/welcome/AddCompnayInfo';
 import Page from '../components/Page';
@@ -13,6 +15,7 @@ export default function Welcome() {
   const [industries, setIndustries] = useState([]);
   const [department, setDepartment] = useState([]);
   const [comList, setComList] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [roles, setRoles] = useState([]);
   const [location, setLocation] = useState([]);
   const [comInfo, setComInfo] = useState([])
@@ -21,6 +24,8 @@ export default function Welcome() {
 
   const [drawerId, setDrawerId] = useState("");
   const [drawerInfo, setDrawerInfo] = useState([])
+  const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+  const checkedIcon = <CheckBoxIcon fontSize="small" />;
   const handleChange = (e, value) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
@@ -30,9 +35,12 @@ export default function Welcome() {
   const onSubmit = (id) => {
     const newObject = {}
     newObject[id] = comInfo[id]
-    const capitalizeId = id.charAt(0).toUpperCase() + id.slice(1);
+    if (drawerId === "role") {
+      newObject.role_categories = comInfo.role_categories.map(category => category.id)
+    }
+    const itemName = id.charAt(0).toUpperCase() + id.slice(1);
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/add${capitalizeId}`, {
+    fetch(`http://localhost:3333/add${itemName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
@@ -46,7 +54,7 @@ export default function Welcome() {
         setReload(!reload);
 
         if (!data.error) {
-          return swal(`${capitalizeId} Added`, `${capitalizeId} has been added successful.`, "success");
+          return swal(`${itemName} Added`, `${itemName} has been added successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -56,9 +64,9 @@ export default function Welcome() {
       })
   }
   const handleDelete = (id, drawerId) => {
-    const capitalizeId = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
+    const itemName = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
     const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/delete${capitalizeId}/${id}`, {
+    fetch(`http://localhost:3333/delete${itemName}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/Json'
@@ -70,7 +78,7 @@ export default function Welcome() {
         toast.dismiss(loading);
         if (data.success) {
           setReload(!reload);
-          return swal(`${capitalizeId} Deleted`, `${capitalizeId} has been Deleted successful.`, "success");
+          return swal(`${itemName} Deleted`, `${itemName} has been Deleted successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
@@ -100,6 +108,11 @@ export default function Welcome() {
       .then(res => res.json())
       .then(data => setComList(data))
   }, [])
+  useEffect(() => {
+    fetch("http://localhost:3333/getCategories")
+      .then(res => res.json())
+      .then(data => setCategories(data?.data))
+  }, [])
 
   const handleDrawerOpen = (id) => {
     setOpenDrawer(true)
@@ -117,6 +130,13 @@ export default function Welcome() {
       setDrawerInfo(location)
     }
   }
+  const handleAssessInfo = (id, info) => {
+
+    const newInfo = { ...comInfo };
+    newInfo[id] = info;
+    setComInfo(newInfo);
+  }
+
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -236,6 +256,34 @@ export default function Welcome() {
                 id={drawerId}
                 label={drawerId}
               />
+              {drawerId === "role" &&
+                <Autocomplete
+                  onChange={(event, newValue) => {
+                    handleAssessInfo("role_categories", newValue);
+                  }}
+                  multiple
+
+                  options={categories}
+                  disableCloseOnSelect
+                  getOptionLabel={(option) => option.category_name}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        icon={icon}
+
+                        checkedIcon={checkedIcon}
+                        style={{ marginRight: 8 }}
+                        checked={selected}
+                      />
+                      {option.category_name}
+                    </li>
+                  )}
+                  style={{ width: 420 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="role" placeholder="Favorites" />
+                  )}
+                />
+              }
               <Stack direction="row" alignItems="center" justifyContent="center">
                 <Button
                   color="success"
