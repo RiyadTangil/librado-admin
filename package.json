@@ -44,6 +44,7 @@
     "@mui/lab": "^5.0.0-alpha.69",
     "@mui/material": "^5.4.2",
     "@mui/utils": "^5.4.2",
+    "@mui/x-data-grid": "^5.12.1",
     "@testing-library/jest-dom": "^5.16.2",
     "apexcharts": "^3.33.1",
     "change-case": "^4.1.2",
