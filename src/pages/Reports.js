@@ -1,8 +1,8 @@
+import * as React from 'react';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import * as React from 'react';
 
 // material
 import {
@@ -10,6 +10,7 @@ import {
   Card,
   Table,
   Stack,
+  Grid,
   Avatar,
   Button,
   Drawer,
@@ -17,6 +18,7 @@ import {
   TableRow,
   TableBody,
   TableCell,
+  TableHead,
   Container,
   Typography,
   TableContainer,
@@ -24,10 +26,17 @@ import {
   TextField,
   OutlinedInput,
   InputAdornment,
-  IconButton
+  IconButton,
+  Collapse
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
 // components
 import { Icon } from '@iconify/react';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
 import Page from '../components/Page';
 import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
@@ -37,18 +46,15 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 //
 import USERLIST from '../_mocks_/user';
 
-
-
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'S.No', label: 'S.No', alignRight: false },
-  { id: 'S.No', label: '', alignRight: false },
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
+  // { id: 'S.No', label: '', alignRight: false },
+  { id: 'Company', label: 'Company', alignRight: false },
+  { id: 'name', label: 'name', alignRight: false },
   { id: 'role', label: 'Email Id', alignRight: false },
-  { id: 'isVerified', label: '', alignRight: false },
-
+  { id: 'isVerified', label: '', alignRight: false }
 ];
 
 // ----------------------------------------------------------------------
@@ -83,6 +89,16 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Reports() {
+  const [open, setOpen] = React.useState([]);
+
+  const handleCollapsableRow = (i) => {
+    if (open.includes(i)) {
+      setOpen([]);
+    } else {
+      setOpen([i]);
+    }
+  };
+
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -145,14 +161,17 @@ export default function Reports() {
   return (
     <Page title="User ">
       <Container>
-
         <Card>
-          <Typography variant="h4" color="secondary" p={3}>Client</Typography>
-          {/* <UserListToolbar
+          <Typography variant="h4" color="secondary" p={3}>
+            Client
+          </Typography>
+
+          <UserListToolbar
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-          /> */}
+          />
+
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -173,35 +192,126 @@ export default function Reports() {
                       const isItemSelected = selected.indexOf(name) !== -1;
 
                       return (
-                        <TableRow
-                          hover
-                          key={id}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                        >
+                        <>
+                          <TableRow
+                            hover
+                            key={id}
+                            tabIndex={-1}
+                            role="checkbox"
+                            selected={isItemSelected}
+                            aria-checked={isItemSelected}
+                          >
+                            <TableCell component="th" scope="row" sx={{ px: 3 }}>
+                              <Stack direction="row" alignItems="center" spacing={2}>
+                                <Typography variant="subtitle2" noWrap>
+                                  {index + 1}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+                            <TableCell align="left">
+                              {' '}
+                              <Avatar alt={name} src={avatarUrl} />
+                            </TableCell>
+                            <TableCell align="left">{company}</TableCell>
+                            <TableCell align="left">{name}</TableCell>
+                            <TableCell align="left">{email}</TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                aria-label="expand row"
+                                size="small"
+                                onClick={() => handleCollapsableRow(index)}
+                              >
+                                {open.includes(index) ? (
+                                  <KeyboardArrowUpIcon />
+                                ) : (
+                                  <KeyboardArrowDownIcon />
+                                )}
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
 
-                          <TableCell component="th" scope="row" sx={{ px: 3 }}>
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {index + 1}
-                              </Typography>
-
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="left">  <Avatar alt={name} src={avatarUrl} /></TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{name}</TableCell>
-                          <TableCell align="left">{email}</TableCell>
-                          <TableCell align="right">
-                            <Icon icon="material-symbols:picture-as-pdf-outline" width="30" height="30" color="red" inline={!false} />
-                          </TableCell>
-
-
-                        </TableRow>
+                          <TableRow>
+                            <TableCell
+                              style={{ paddingBottom: 0, paddingTop: 0 }}
+                              colSpan={6}
+                              padding="checkbox"
+                            >
+                              <Collapse
+                                in={open.includes(index)}
+                                timeout="auto"
+                                unmountOnExit
+                                id="panel1a-header"
+                              >
+                                <Box sx={{ margin: 1 }}>
+                                  <Typography gutterBottom component="div" variant="h6">
+                                    Details
+                                  </Typography>
+                                  <Table size="small" aria-label="purchases">
+                                    <TableHead>
+                                      <TableRow>
+                                        <TableCell>S.No</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Industry</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Department</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Location</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Role</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Happiness Factor</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">
+                                          {' '}
+                                          Current & Target cultural statments
+                                        </TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Operational Category</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Download report</TableCell>
+                                        <TableCell />
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableCell component="th" scope="row" sx={{ px: 3 }}>
+                                          <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Typography variant="subtitle2" noWrap>
+                                              {index + 1}
+                                            </Typography>
+                                          </Stack>
+                                        </TableCell>
+                                        <TableCell />
+                                        <TableCell align="center" component="th" scope="row">
+                                          Wipro
+                                        </TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">IT sector</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Noida</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">SDE</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">7.8</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Nothing </TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">Null</TableCell>
+                                        <TableCell />
+                                        <TableCell align="center">
+                                          <FileDownloadOutlinedIcon />
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </>
                       );
                     })}
+
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
                       <TableCell colSpan={6} />
