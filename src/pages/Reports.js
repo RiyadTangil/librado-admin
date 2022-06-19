@@ -3,18 +3,16 @@ import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 // material
 import {
   Box,
   Card,
   Table,
   Stack,
-  Grid,
   Avatar,
   Button,
-  Drawer,
-  Checkbox,
+
   TableRow,
   TableBody,
   TableCell,
@@ -173,7 +171,7 @@ export default function Reports() {
           />
 
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer >
               <Table>
                 <UserListHead
                   order={order}
@@ -200,6 +198,7 @@ export default function Reports() {
                             role="checkbox"
                             selected={isItemSelected}
                             aria-checked={isItemSelected}
+
                           >
                             <TableCell component="th" scope="row" sx={{ px: 3 }}>
                               <Stack direction="row" alignItems="center" spacing={2}>
@@ -230,7 +229,7 @@ export default function Reports() {
                             </TableCell>
                           </TableRow>
 
-                          <TableRow>
+                          <TableRow >
                             <TableCell
                               style={{ paddingBottom: 0, paddingTop: 0 }}
                               colSpan={6}
@@ -239,6 +238,7 @@ export default function Reports() {
                               <Collapse
                                 in={open.includes(index)}
                                 timeout="auto"
+
                                 unmountOnExit
                                 id="panel1a-header"
                               >
@@ -246,60 +246,47 @@ export default function Reports() {
                                   <Typography gutterBottom component="div" variant="h6">
                                     Details
                                   </Typography>
-                                  <Table size="small" aria-label="purchases">
+                                  <Table size="small" aria-label="purchases"
+                                  >
                                     <TableHead>
                                       <TableRow>
-                                        <TableCell>S.No</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Industry</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Department</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Location</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Role</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Happiness Factor</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">
-                                          {' '}
-                                          Current & Target cultural statments
-                                        </TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Operational Category</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Download report</TableCell>
+                                        {["S.No", "  Industry", "Departmentr", "Location", "Role", "Happiness Factor", "Download report", "Delete"]
+                                          .map(title =>
+
+                                            <TableCell
+                                              align="center">
+                                              {title}
+                                            </TableCell>
+
+
+                                          )}
+                                    
                                         <TableCell />
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
                                       <TableRow>
-                                        <TableCell component="th" scope="row" sx={{ px: 3 }}>
-                                          <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography variant="subtitle2" noWrap>
-                                              {index + 1}
-                                            </Typography>
-                                          </Stack>
-                                        </TableCell>
-                                        <TableCell />
-                                        <TableCell align="center" component="th" scope="row">
-                                          Wipro
-                                        </TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">IT sector</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Noida</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">SDE</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">7.8</TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Nothing </TableCell>
-                                        <TableCell />
-                                        <TableCell align="center">Null</TableCell>
-                                        <TableCell />
+
+                                        {[`${index + 1}`, "  Wipro", "IT sector", "Noida", "SDE", "7"]
+                                          .map(title =>
+
+                                            <TableCell
+                                              align="center">
+                                              {title}
+                                            </TableCell>
+
+
+                                          )}
+
                                         <TableCell align="center">
-                                          <FileDownloadOutlinedIcon />
+                                          <IconButton>
+                                            <FileDownloadOutlinedIcon />
+                                          </IconButton>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                          <Button variant="outlined" color="error" startIcon={<DeleteIcon />}>
+                                            DELETE
+                                          </Button>
                                         </TableCell>
                                       </TableRow>
                                     </TableBody>
