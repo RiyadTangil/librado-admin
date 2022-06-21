@@ -2,6 +2,7 @@ import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import FileList from './../filelist/FileList';
 import {
   Grid,
   Button,
@@ -30,8 +31,12 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export default function Planning() {
   // FILE UPLOAD HANDLER
   const [files, setFiles] = useState([
+    // HARDCODED FILES
     {
       name: 'myFile.pdf'
+    },
+    {
+      name: 'myFile 2 .pdf'
     }
   ]);
 
@@ -50,16 +55,16 @@ export default function Planning() {
     const formData = new FormData();
     formData.append('newFile', file, file.name);
 
-    // axios
-    //   .post('http;//localhost:8080/upload', formData)
-    //   .then((res) => {
-    //     file.isUploading = false;
-    //     setFiles(...files, file);
-    //   })
-    //   .catch((err) => {
-    //     console.error(err);
-    //     removeFile(file.name);
-    //   });
+    //   axios
+    //     .post('http;//localhost:8080/upload', formData)
+    //     .then((res) => {
+    //       file.isUploading = false;
+    //       setFiles(...files, file);
+    //     })
+    //     .catch((err) => {
+    //       console.error(err);
+    //       removeFile(file.name);
+    //     });
   };
   console.log(files);
 
@@ -248,27 +253,31 @@ export default function Planning() {
             />
           </Grid>
         </Grid>
+        {/*   UPLOADED FILE SECTION START FROM HERE  */}
+        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+          Uploaded files
+        </Typography>
+        <FileList files={files} removeFile={removeFile} />
 
-        <Grid container sx={{ mt: 10 }} spacing={2}>
+        {/* <Grid container sx={{ mt: 10 }} spacing={2}>
           <Grid item xs={6}>
             <Card sx={{ display: 'flex' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flex: '1 0 auto' }}>
                   <Typography component="div" variant="title">
-                    My file &nbsp;
-                    <DeleteForeverIcon />
+                    
                   </Typography>
                 </CardContent>
               </Box>
             </Card>
             <Stack sx={{ boxShadow: 6 }} position="relative" spacing={3}>
-              {/* <img
+              <img
                 src="http://flxtable.com/wp-content/plugins/pl-platform/engine/ui/images/image-preview.png"
                 alt="blog-1"
-              /> */}
+              />
             </Stack>
           </Grid>
-          {/* <Grid item xs={6}>
+          <Grid item xs={6}>
             {staterInfo?.docs ? (
               <Typography variant="h6">{staterInfo?.docs}</Typography>
             ) : (
@@ -285,8 +294,8 @@ export default function Planning() {
                 identifiable.
               </Typography>
             )}
-          </Grid> */}
-        </Grid>
+          </Grid>
+        </Grid> */}
       </Card>
     </Page>
   );
