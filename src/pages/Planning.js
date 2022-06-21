@@ -1,18 +1,22 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer, Input, Checkbox, Autocomplete } from '@mui/material';
 // components
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
-
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 // ----------------------------------------------------------------------
-export default function GetStarted() {
+export default function Planning() {
   const [comList, setComList] = useState([]);
   const [staterInfo, setStaterInfo] = useState(null);
   const [responseData, setResponseData] = useState([]);
   const [comInfo, setComInfo] = useState([])
-  const handleChange = (e) => {
+
+  const handleAssessInfo = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
@@ -91,13 +95,13 @@ export default function GetStarted() {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <Typography variant="h4" gutterBottom>
-              Getting Started
+              Monthly planning
             </Typography>
           </Grid>
           <Grid item xs={5}>
 
             <Box display="flex" alignItems="center" justifyContent="end">
-               
+
               {staterInfo &&
                 <Button
                   onClick={handleDelete}
@@ -114,48 +118,53 @@ export default function GetStarted() {
           <Drawer
             anchor='right'
             open={state}
+
             onClose={() => setState(false)}
           >
-            <Stack alignItems="center" justifyContent="center" mb={3}>
-              <Button
-                sx={{ "&:hover": { backgroundColor: "transparent" } }}
-                component="label"
-              >
-                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={preview !== null ? preview : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
+            <Stack
+              sx={{ width: 450, mt: 2 }}
+              alignItems="center" justifyContent="center" mb={3}>
+              <img style={{ width: "150px", height: "150px" }} src={preview !== null ? preview : "https://www.prestophoto.com/storage/static/landing/pdf-book-printing/pdf-icon.png"} alt="logo" />
+              <Button sx={{ my: 2 }} variant="contained" component="span">
+
                 <input
+                  style={{ backgroundColor: "transparent", border: "none" }}
                   type="file"
                   onClick={(e) => setSelectedFile(e.target.files[0])}
-                  hidden
+
                 />
               </Button>
-              <Button
-                onClick={onSubmit}
-                sx={{
-                  position: 'absolute',
-                  marginTop: '10px',
-                  marginRight: '10px',
-                  right: '0',
-                  top: '0',
-                }} variant="outlined" >{staterInfo ? "UPdate" : "Save"}</Button>
-            </Stack>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  handleAssessInfo(newValue);
+                }}
+                multiple
+                options={["Report -1", "Report -2"]}
+                disableCloseOnSelect
+                getOptionLabel={(option) => option}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
 
-            <Box
-              sx={{
-                width: 450, p: 2, display: 'grid',
-                gap: 2,
-                gridTemplateColumns: 'repeat(1, 1fr)',
-              }}
-              role="presentation"
-            >
-              <TextField
-                onBlur={(e, value) => handleChange(e, value)}
-                id="docs"
-                label="text"
-                multiline
-                rows={4}
-                placeholder="Getting start doc"
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option}
+                  </li>
+                )}
+                style={{ width: 420 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Question" placeholder="Favorites" />
+                )}
               />
-            </Box>
+              <Button
+                sx={{ mt: 2 }}
+                onClick={onSubmit}
+                color="success"
+                variant="outlined" >{staterInfo ? "UPdate" : "Save"}</Button>
+            </Stack>
 
           </Drawer>
           <Grid item xs={4}>

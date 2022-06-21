@@ -18,6 +18,7 @@ import Statements from './pages/Statements';
 import Reports from './pages/Reports';
 import Category from './pages/Category';
 import Users from './pages/Users';
+import Planning from './pages/Planning';
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +38,8 @@ export default function Router() {
         { path: 'statements', element: <Statements /> },
         { path: 'category', element: <Category /> },
         { path: 'users', element: <Users /> },
-        { path: 'reports', element: <Reports /> }
+        { path: 'reports', element: <Reports /> },
+        { path: 'planning', element: <Planning /> }
       ]
     },
     {
