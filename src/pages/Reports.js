@@ -304,8 +304,6 @@ export default function Reports() {
                                       <TableBody key={item.id}>
                                         <TableRow>
 
-
-
                                           <TableCell
                                             align="center">
                                             {index + 1}
