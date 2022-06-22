@@ -1,51 +1,81 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer, Input, Checkbox, Autocomplete } from '@mui/material';
 // components
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 // ----------------------------------------------------------------------
-export default function GetStarted() {
+export default function Planning() {
   const [comList, setComList] = useState([]);
+  const [allPlannings, setPlannings] = useState([]);
   const [staterInfo, setStaterInfo] = useState(null);
-  const [responseData, setResponseData] = useState([]);
+  const [imgUrl, setImgUrl] = useState(null);
   const [comInfo, setComInfo] = useState([])
-  const handleChange = (e) => {
+
+  const handleAssessInfo = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
   }
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [state, setState] = useState(false);
   const [preview, setPreview] = useState(null);
-  const onSubmit = () => {
+
+  const handleImgSave = () => {
+    if (!imgUrl) {
+      return toast.error('Please upload the img first...!');
+    }
     const loading = toast.loading('Please wait...!');
-    console.log(comInfo?.company_id, "comInfo?.company_id")
-    fetch(`http://localhost:3333/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
-      method: `${staterInfo ? 'PUT' : 'POST'}`,
+    fetch("http://localhost:3333/addPlanning", {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/Json'
       },
       body: JSON.stringify({
-        "docs": comInfo?.docs,
-        "img": "img link"
+        img_url: imgUrl
       })
     })
       .then(response => response.json())
       .then(data => {
         toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`Getting Info ${staterInfo ? "updated" : "added"}`, `GettingInfo has been ${staterInfo ? "updated" : "added"} successful.`, "success");
+        if (data.success) {
+          return swal(`Planning report added`, `Planning has been  added successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
       })
       .catch(error => {
         toast.dismiss(loading);
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
+      })
+  }
+  const handleImgUpload = (img) => {
+    setLoading(true)
+    const formData = new FormData()
+    formData.append('file', img);
+    fetch("http://localhost:3333/upload", {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setImgUrl(data.data);
+          setLoading(false)
+          console.log(data, "data")
+        }
+
+      })
+      .catch(error => {
+        toast.error("Img is not uploaded. try again")
+        setLoading(false)
       })
   }
   const handleDelete = () => {
@@ -60,7 +90,7 @@ export default function GetStarted() {
       .then(data => {
         toast.dismiss(loading);
         if (data.success) {
-          setResponseData(data);
+          setImgUrl(data);
           return swal(`GettingInfo Deleted`, `GettingInfo has been Deleted successful.`, "success");
         }
         swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
@@ -84,20 +114,27 @@ export default function GetStarted() {
         .then(res => res.json())
         .then(data => setStaterInfo(data?.data[0]?.getting_starts))
     }
-  }, [comInfo?.company_id, responseData])
+  }, [comInfo?.company_id, imgUrl])
+  useEffect(() => {
+
+    fetch(`http://localhost:3333/getPlanning/`)
+      .then(res => res.json())
+      .then(data => setPlannings(data.data))
+
+  }, [])
   return (
     <Page title="Getting Started">
       <Card sx={{ p: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <Typography variant="h4" gutterBottom>
-              Getting Started
+              Monthly planning{allPlannings.length}
             </Typography>
           </Grid>
           <Grid item xs={5}>
 
             <Box display="flex" alignItems="center" justifyContent="end">
-               
+
               {staterInfo &&
                 <Button
                   onClick={handleDelete}
@@ -114,48 +151,57 @@ export default function GetStarted() {
           <Drawer
             anchor='right'
             open={state}
+
             onClose={() => setState(false)}
           >
-            <Stack alignItems="center" justifyContent="center" mb={3}>
-              <Button
-                sx={{ "&:hover": { backgroundColor: "transparent" } }}
-                component="label"
-              >
-                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={preview !== null ? preview : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
+            <Stack
+              sx={{ width: 450, mt: 2 }}
+              alignItems="center" justifyContent="center" mb={3}>
+              <img style={{ width: "150px", height: "150px" }} src={preview !== null ? preview : "https://www.prestophoto.com/storage/static/landing/pdf-book-printing/pdf-icon.png"} alt="logo" />
+              <Button sx={{ my: 2 }} variant="contained" component="span">
+
                 <input
+                  style={{ backgroundColor: "transparent", border: "none" }}
                   type="file"
-                  onClick={(e) => setSelectedFile(e.target.files[0])}
-                  hidden
+                  onChange={(e) => handleImgUpload(e.target.files[0])}
+
                 />
               </Button>
-              <Button
-                onClick={onSubmit}
-                sx={{
-                  position: 'absolute',
-                  marginTop: '10px',
-                  marginRight: '10px',
-                  right: '0',
-                  top: '0',
-                }} variant="outlined" >{staterInfo ? "UPdate" : "Save"}</Button>
-            </Stack>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  handleAssessInfo(newValue);
+                }}
+                multiple
+                options={["Report -1", "Report -2"]}
+                disableCloseOnSelect
+                getOptionLabel={(option) => option}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
 
-            <Box
-              sx={{
-                width: 450, p: 2, display: 'grid',
-                gap: 2,
-                gridTemplateColumns: 'repeat(1, 1fr)',
-              }}
-              role="presentation"
-            >
-              <TextField
-                onBlur={(e, value) => handleChange(e, value)}
-                id="docs"
-                label="text"
-                multiline
-                rows={4}
-                placeholder="Getting start doc"
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option}
+                  </li>
+                )}
+                style={{ width: 420 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Question" placeholder="Favorites" />
+                )}
               />
-            </Box>
+              <LoadingButton
+                sx={{ mt: 2 }}
+                onClick={handleImgSave}
+                color="success"
+                loading={loading}
+                loadingPosition="start"
+                startIcon={<SaveIcon />}
+                variant="outlined"
+              >{"Save"}</LoadingButton>
+            </Stack>
 
           </Drawer>
           <Grid item xs={4}>

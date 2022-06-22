@@ -58,6 +58,13 @@ const sidebarConfig = [
     title: 'Publish report',
     path: '/dashboard/reports',
     icon: getIcon('eva:file-text-fill')
+
+  },
+
+  {
+    title: 'Monthly Planning',
+    path: '/dashboard/planning',
+    icon: getIcon('eva:file-text-fill')
   }
 ];
 

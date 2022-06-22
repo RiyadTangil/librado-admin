@@ -14,7 +14,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
     const [assessInfo, setAssessInfo] = useState(null);
     const [allIndustries, setIndustries] = useState([])
     const [allDepartment, setAllDepartment] = useState([])
-    const [allRoles, setAllRoles] = useState([])
+    // const [allRoles, setAllRoles] = useState([])
     const [allLocation, setAllLocation] = useState([])
     const [reload, setReload] = useState(false)
     const [state, setState] = useState(false);
@@ -23,6 +23,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
         const newInfo = { ...comInfo };
         newInfo[id] = info;
         setComInfo(newInfo);
+        console.log(newInfo, "newInfo")
     }
 
     const handleAssesSubmit = () => {
@@ -37,7 +38,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
                 industry: comInfo.all_industry,
                 department: comInfo.all_department,
                 location: comInfo.all_location,
-                role: comInfo.all_role,
+                role: comInfo.all_role
             })
 
         })
@@ -59,7 +60,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
     useEffect(() => {
         setIndustries(industries?.map(info => (info.industry)))
         setAllDepartment(department?.map(info => (info.department)))
-        setAllRoles(roles?.map(info => (info.role)))
+        // setAllRoles(roles?.map(info => (info.role)))
         setAllLocation(location?.map(info => (info.location)))
     }, [industries, department, roles, location])
     const handleAssessDelete = (id) => {
@@ -256,9 +257,9 @@ export default function AddCompnayInfo({ industries, department, roles, location
                         }}
                         multiple
 
-                        options={allRoles}
+                        options={roles}
                         disableCloseOnSelect
-                        getOptionLabel={(option) => option}
+                        getOptionLabel={(option) => option.role}
                         renderOption={(props, option, { selected }) => (
                             <li {...props}>
                                 <Checkbox
@@ -268,7 +269,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
                                     style={{ marginRight: 8 }}
                                     checked={selected}
                                 />
-                                {option}
+                                {option.role}
                             </li>
                         )}
                         style={{ width: 420 }}
