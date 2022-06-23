@@ -10,6 +10,7 @@ import CompanyList from '../components/CompanyList';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import PlanningCard from 'src/components/PlanningCard';
+import { ASSESSMENT_GET_API, ASSESSMENT_POST_API, Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -17,9 +18,15 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export default function Planning() {
   const [comList, setComList] = useState([]);
   const [allPlannings, setPlannings] = useState([]);
-  const [staterInfo, setStaterInfo] = useState(null);
+  const [assessPlan, setAssessPlan] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
   const [comInfo, setComInfo] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [reload, setReload] = useState(false);
+  const [reloadAssess, setReloadAssess] = useState(false);
+  const [state, setState] = useState(false);
+  const [planningMod, setPlanningMod] = useState(false);
+  const [preview, setPreview] = useState(null);
 
   const handleAssessInfo = (value) => {
     const newInfo = { ...comInfo };
@@ -27,87 +34,51 @@ export default function Planning() {
     console.log(newInfo, "newInfo")
     setComInfo(newInfo);
   }
-  const [loading, setLoading] = useState(false);
-  const [reload, setReload] = useState(false);
-  const [state, setState] = useState(false);
-  const [planningMod, setPlanningMod] = useState(false);
-  const [preview, setPreview] = useState(null);
 
-  const handleImgSave = () => {
+
+  const handleImgSave = async () => {
     if (!imgUrl) {
       return toast.error('Please upload the img first...!');
     }
-    const loading = toast.loading('Please wait...!');
-    fetch("http://localhost:3333/addPlanning", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        img_url: imgUrl
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          return swal(`Planning report added`, `Planning has been  added successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+    const body = { img_url: imgUrl }
+    const isSucceed = await POST_API("addPlanning", body, "Planning")
+    if (isSucceed) { setReload(!reload) }
   }
-  const handleImgUpload = (img) => {
-    setLoading(true)
-    const formData = new FormData()
-    formData.append('file', img);
-    fetch("http://localhost:3333/upload", {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          setImgUrl(data.data);
-          setLoading(false)
-          console.log(data, "data")
-        }
+  const handlePlanningAssessment = async () => {
+    const urlList = comInfo.planning_info.map(item => item.img_url)
+    const body = { planning_assessment: urlList }
+    const isSucceed = await ASSESSMENT_POST_API("addPlanAssesInfo", comInfo.company_id, body, "Planning")
+    if (isSucceed) { setReloadAssess(!reloadAssess) };
 
-      })
-      .catch(error => {
-        toast.error("Img is not uploaded. try again")
-        setLoading(false)
-      })
+
   }
-  const handleDelete = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deletePlanning/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setReload(!reload)
-          return swal(`GettingInfo Deleted`, `Planning has been Deleted successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleImgUpload = async (img) => {
+    setLoading(true)
+    const isSucceed = await IMG_UPLOAD_API(img)
+    if (isSucceed) {
+      setImgUrl(isSucceed);
+      setLoading(false)
+    }
+    else { setLoading(false) }
+  }
+  const handleDelete = async (id) => {
+    const isSucceed = await Delete_API("deletePlanning", id, "Planning Info")
+    if (isSucceed) {
+      setReload(!reload)
+    }
+  }
+  const handleAssessDelete = async () => {
+    const isSucceed = await Delete_API("deletePlanAssessInfo", assessPlan.id, "Planning Info")
+    if (isSucceed) { setReloadAssess(!reloadAssess) };
+
   }
   const checkCompanySelector = () => {
     setPlanningMod(false)
-    if (comInfo.company_id) {
+    if (comInfo.company_id && !assessPlan) {
       setState(!false)
+    }
+    else if (assessPlan) {
+      return swal("Failed!", "Rest first  to add assessment info again.", "error", { dangerMode: true });
     }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
@@ -120,11 +91,11 @@ export default function Planning() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getStarterInfo/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
-        .then(data => setStaterInfo(data?.data[0]?.getting_starts))
+        .then(data => setAssessPlan(data?.data[0]?.assess_planning))
     }
-  }, [comInfo?.company_id, imgUrl])
+  }, [comInfo?.company_id, reloadAssess])
   useEffect(() => {
     fetch(`http://localhost:3333/getPlanning/`)
       .then(res => res.json())
@@ -144,9 +115,9 @@ export default function Planning() {
 
             <Box display="flex" alignItems="center" justifyContent="end">
 
-              {staterInfo &&
+              {assessPlan &&
                 <Button
-                  onClick={handleDelete}
+                  onClick={handleAssessDelete}
                   style={{ marginRight: 10 }}
                   size="large"
                   color="error"
@@ -227,7 +198,7 @@ export default function Planning() {
             <LoadingButton
 
               sx={{ mt: 2, width: "70%" }}
-              onClick={planningMod ? handleImgSave : null}
+              onClick={planningMod ? handleImgSave : handlePlanningAssessment}
               color="success"
               loading={loading}
               loadingPosition="start"

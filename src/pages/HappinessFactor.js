@@ -1,5 +1,4 @@
 import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer } from '@mui/material';
 // components
@@ -8,6 +7,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
+import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -15,7 +15,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export default function HappinessFactor() {
   const [comList, setComList] = useState([]);
   const [happyAssessInfo, setHappyAssessInfo] = useState(null);
-  const [responseData, setResponseData] = useState([]);
+  const [responseData, setResponseData] = useState(false);
   const [allQuestion, setAllQuestion] = useState([]);
   const [happinessQsns, setHappinessQs] = useState([]);
   const [comInfo, setComInfo] = useState([])
@@ -32,81 +32,37 @@ export default function HappinessFactor() {
     newInfo.happinessQsn = value;
     setComInfo(newInfo);
   }
-  const onSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${id ? `updateHappinessQsn/${id}` : "addHappinessQsn"}`, {
-      method: id ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        status: comInfo?.status,
-        question: comInfo?.question,
-
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`Getting Info ${id ? "updated" : "added"} `, `Happiness Qsn has been ${id ? "updated" : "added"} successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleAddHappinessQsn = async () => {
+    const body = {
+      status: comInfo?.status,
+      question: comInfo?.question,
+    }
+    const isSucceed = await POST_API("addHappinessQsn", body, "Happiness")
+    if (isSucceed) { setResponseData(!responseData) };
   }
-  const handleAssessmentSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/addHappyAssessInfo/${comInfo.company_id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        question: comInfo.happinessQsn,
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`Happiness Assess Info added `, `Happiness Qsn has been added successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleUpdateHappinessQsn = async (id) => {
+    const body = {
+      status: comInfo?.status,
+      question: comInfo?.question,
+    }
+    const isSucceed = await UPDATE_API(`updateHappinessQsn/${id}`, body, "Happiness")
+    if (isSucceed) { setResponseData(!responseData) };
   }
-  const handleDelete = (id, status) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${status ? "deleteHappyAssessInfo" : "deleteHappinessQsn"}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setResponseData(data);
-          return swal(`Happiness Qsn Deleted`, `Happiness Qsn has been Deleted successful.`, "success");
-        }
-        swal("Failed!", "Something waent wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleAssessmentSubmit = async (id) => {
+    const body = { question: comInfo.happinessQsn }
+    const isSucceed = await ASSESSMENT_POST_API("addHappyAssessInfo", comInfo.company_id, body, "Happiness")
+    if (isSucceed) { setResponseData(!responseData) };
+
+  }
+  const deleteAssessInfo = async (id) => {
+    const isSucceed = await Delete_API("deleteHappyAssessInfo", id, "Happiness Qsn")
+    if (isSucceed) { setResponseData(!responseData) }
+
+  }
+  const handleQsnDelete = async (id) => {
+    const isSucceed = await Delete_API("deleteHappinessQsn", id, "Happiness Qsn")
+    if (isSucceed) { setResponseData(!responseData) }
+
   }
   const checkCompanySelector = () => {
     if (comInfo.company_id) {
@@ -164,10 +120,10 @@ export default function HappinessFactor() {
           </Grid>
           <Grid item xs={5}>
             <Box display="flex" alignItems="center" justifyContent="end">
-               
+
               {happyAssessInfo &&
-                  <Button
-                  onClick={() => handleDelete(happyAssessInfo?.id, true)}
+                <Button
+                  onClick={() => deleteAssessInfo(happyAssessInfo?.id)}
                   style={{ marginRight: 10 }}
                   size="large"
                   color="error"
@@ -221,7 +177,7 @@ export default function HappinessFactor() {
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? onSubmit(editId) : onSubmit(false)}
+                onClick={() => editId ? handleUpdateHappinessQsn(editId) : handleAddHappinessQsn()}
                 variant="outlined"
                 color="success"
               >{editId ? "UPdate" : "Save"}
@@ -233,7 +189,7 @@ export default function HappinessFactor() {
         {happinessQsns?.map(qsn =>
           <HappyCard
             key={qsn.id}
-            handleDelete={handleDelete}
+            handleDelete={handleQsnDelete}
             handleEdit={handleEdit}
             qsn={qsn}
           />)}

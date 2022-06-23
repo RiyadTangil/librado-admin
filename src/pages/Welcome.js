@@ -1,5 +1,3 @@
-import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 // material
@@ -8,8 +6,8 @@ import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Dr
 // components
 import AddCompnayInfo from '../components/welcome/AddCompnayInfo';
 import Page from '../components/Page';
+import { Delete_API, POST_API } from 'src/utils/api';
 
-const options = ['The Godfather', 'Pulp Fiction'];
 // ----------------------------------------------------------------------
 export default function Welcome() {
   const [industries, setIndustries] = useState([]);
@@ -21,7 +19,6 @@ export default function Welcome() {
   const [comInfo, setComInfo] = useState([])
   const [reload, setReload] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false);
-
   const [drawerId, setDrawerId] = useState("");
   const [drawerInfo, setDrawerInfo] = useState([])
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -30,62 +27,22 @@ export default function Welcome() {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
-    console.log("infor from blur ", newInfo)
   }
-  const onSubmit = (id) => {
+  const onSubmit = async (id) => {
     const newObject = {}
     newObject[id] = comInfo[id]
     if (drawerId === "role") {
       newObject.role_categories = comInfo.role_categories.map(category => category.id)
     }
     const itemName = id.charAt(0).toUpperCase() + id.slice(1);
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/add${itemName}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify(newObject)
-
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setReload(!reload);
-
-        if (!data.error) {
-          return swal(`${itemName} Added`, `${itemName} has been added successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+    const isSucceed = await POST_API(`add${itemName}`, newObject, itemName)
+    if (isSucceed) { setReload(!reload) }
   }
-  const handleDelete = (id, drawerId) => {
+  const handleDelete = async (id, drawerId) => {
     const itemName = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/delete${itemName}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({ title: 'React Hooks PUT Request Example' })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setReload(!reload);
-          return swal(`${itemName} Deleted`, `${itemName} has been Deleted successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+    const isSucceed = await Delete_API(`delete${itemName}`, id, itemName)
+    if (isSucceed) { setReload(!reload) }
+
   }
 
   useEffect(() => {
@@ -301,13 +258,8 @@ export default function Welcome() {
                   <Button onClick={() => handleDelete(info.id, drawerId)} style={{ marginLeft: 10 }} color="error" variant="outlined" >Delete</Button>
                 </Card>
               )}
-
-
             </Stack>
           </Box>
-
-
-
         </Drawer>
       </Card>
     </Page >

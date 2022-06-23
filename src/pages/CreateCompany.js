@@ -1,8 +1,5 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 import { Link as RouterLink } from 'react-router-dom';
 import * as React from 'react';
 
@@ -15,7 +12,6 @@ import {
   Avatar,
   Button,
   Drawer,
-  Checkbox,
   TableRow,
   TableBody,
   TableCell,
@@ -24,19 +20,17 @@ import {
   TableContainer,
   TablePagination,
   TextField,
-  OutlinedInput,
-  InputAdornment,
   IconButton
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 //
 import USERLIST from '../_mocks_/user';
+import { Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
 
 
 
@@ -89,7 +83,9 @@ export default function CreateCompany() {
   const [page, setPage] = useState(0);
   const [comInfo, setComInfo] = useState(0);
   const [comList, setComList] = useState([]);
-  const [responseData, setResponseData] = useState([]);
+  const [reload, setReload] = useState(false);
+  // const [imgLoading, setImgLoading] = useState(false);
+  const [imgUrl, setImgUrl] = useState(null);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
@@ -123,24 +119,6 @@ export default function CreateCompany() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -160,67 +138,35 @@ export default function CreateCompany() {
     console.log(newInfo);
   }
 
-  const onSubmit = (e) => {
-    const loading = toast.loading('Please wait...!');
-    e.preventDefault()
-    fetch('http://localhost:3333/addCompany', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        "name": comInfo.name,
-        "company_name": comInfo.company_name,
-        "email": comInfo.email,
-        "img_url": "img_url",
-        "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,
-      })
-
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        console.log(data.data.unique_id)
-        if (!data.error) {
-
-          return swal("Company Added", "Company has been added successful.", "success");
-        }
-        swal("Failed!", data?.error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
+  const onSubmit = async () => {
+    const body = {
+      "name": comInfo.name,
+      "company_name": comInfo.company_name,
+      "email": comInfo.email,
+      "img_url": imgUrl,
+      "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,
+    }
+    const isSucceed = await POST_API("addCompany", body, "Company")
+    if (isSucceed) { setReload(!reload) }
   }
-  const handleDelete = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteCompany/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-          return swal("Company deleted", "Company has been deleted successful.", "success");
-        }
-        swal("Failed!", data?.error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
+  const handleDelete = async (id) => {
+    const isSucceed = await Delete_API("deleteCompany", id, "Company")
+    if (isSucceed) { setReload(!reload) }
   }
+
+  const handleImgUpload = async (img) => {
+    const img_url = await IMG_UPLOAD_API(img)
+    if (img_url) {
+      setImgUrl(img_url);
+    }
+  }
+
   useEffect(() => {
     fetch("http://localhost:3333/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
-  }, [responseData])
-  
+  }, [reload])
+
   const handleClipboard = async (id) => {
     navigator.clipboard.writeText(id);
   }
@@ -258,10 +204,10 @@ export default function CreateCompany() {
                 sx={{ "&:hover": { backgroundColor: "transparent" } }}
                 component="label"
               >
-                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={preview !== null ? preview : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
+                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={imgUrl ? imgUrl : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
                 <input
                   type="file"
-                  onClick={(e) => setSelectedFile(e.target.files[0])}
+                  onChange={(e) => handleImgUpload(e.target.files[0])}
                   hidden
                 />
               </Button>
@@ -304,25 +250,7 @@ export default function CreateCompany() {
                 label="Email Id"
                 placeholder="Email Id"
               />
-              {responseData?.unique_id &&
-                <OutlinedInput
-                  id="unique_id"
-                  placeholder="www.peopleaccel.com/qwe"
-                  defaultValue={responseData?.unique_id}
 
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        edge="end"
-                        onClick={() => handleClipboard(responseData?.unique_id)}
-                      >
-                        <Iconify icon="akar-icons:copy" />
-                      </IconButton>
-                    </InputAdornment>
-                  }
-
-                />}
             </Box>
 
           </Drawer>
@@ -363,12 +291,7 @@ export default function CreateCompany() {
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        {/* <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={isItemSelected}
-                              onBlur={(event) => handleClick(event, name)}
-                            />
-                          </TableCell> */}
+
                         <TableCell component="th" scope="row" sx={{ px: 3 }}>
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="subtitle2" noWrap>
@@ -377,7 +300,7 @@ export default function CreateCompany() {
 
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">  <Avatar alt={company?.name} src="https://i.ibb.co/hFpDTpy/download.png" /></TableCell>
+                        <TableCell align="left">  <Avatar alt={company?.name} src={company?.img_url} /></TableCell>
                         <TableCell align="left">{company?.name}</TableCell>
                         <TableCell align="left">{company?.company_name}</TableCell>
                         <TableCell align="left">{company?.email}</TableCell>

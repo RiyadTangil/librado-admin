@@ -1,11 +1,12 @@
 import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 // material
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useState, useEffect } from 'react';
 import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer, Checkbox } from '@mui/material';
 import CompanyList from '../CompanyList';
+import CustomAutocomplete from '../CustomAutocomplete';
+import { ASSESSMENT_POST_API, Delete_API } from 'src/utils/api';
 // components
 // ----------------------------------------------------------------------
 export default function AddCompnayInfo({ industries, department, roles, location }) {
@@ -14,92 +15,51 @@ export default function AddCompnayInfo({ industries, department, roles, location
     const [assessInfo, setAssessInfo] = useState(null);
     const [allIndustries, setIndustries] = useState([])
     const [allDepartment, setAllDepartment] = useState([])
-    // const [allRoles, setAllRoles] = useState([])
     const [allLocation, setAllLocation] = useState([])
     const [reload, setReload] = useState(false)
     const [state, setState] = useState(false);
     const handleAssessInfo = (id, info) => {
-
         const newInfo = { ...comInfo };
         newInfo[id] = info;
         setComInfo(newInfo);
-        console.log(newInfo, "newInfo")
     }
 
-    const handleAssesSubmit = () => {
-        const loading = toast.loading('Please wait...!');
-        fetch(`http://localhost:3333/addWelcomeAssess/${comInfo.company_id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/Json'
-            },
-            body: JSON.stringify({
-                welcome_text: comInfo.welcome_text,
-                industry: comInfo.all_industry,
-                department: comInfo.all_department,
-                location: comInfo.all_location,
-                role: comInfo.all_role
-            })
+    const handleAssesSubmit = async () => {
+        const body = {
+            welcome_text: comInfo.welcome_text,
+            industry: comInfo.all_industry,
+            department: comInfo.all_department,
+            location: comInfo.all_location,
+            role: comInfo.all_role
+        }
+        const isSucceed = await ASSESSMENT_POST_API("addWelcomeAssess", comInfo.company_id, body, "Assessment")
+        if (isSucceed) {
+            setReload(!reload);
+            setState(false)
+        }
 
-        })
-            .then(response => response.json())
-            .then(data => {
-                toast.dismiss(loading);
-                setReload(!reload);
-
-                if (!data.error) {
-                    return swal("Assessment info Added", "Assessment info have been added successful.", "success");
-                }
-                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-            })
-            .catch(error => {
-                toast.dismiss(loading);
-                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-            })
     }
     useEffect(() => {
         setIndustries(industries?.map(info => (info.industry)))
         setAllDepartment(department?.map(info => (info.department)))
-        // setAllRoles(roles?.map(info => (info.role)))
         setAllLocation(location?.map(info => (info.location)))
     }, [industries, department, roles, location])
-    const handleAssessDelete = (id) => {
-        console.log(id, "id")
-        const loading = toast.loading('Please wait...!');
-        fetch(`http://localhost:3333/deleteWelcomeAssesInfo/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/Json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                toast.dismiss(loading);
-                if (data.success) {
-                    setReload(!reload);
-                    return swal(`Welcome Info Deleted`, `Welcome Info has been Deleted successful.`, "success");
-                }
-                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-            })
-            .catch(error => {
-                toast.dismiss(loading);
-                swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-            })
+    const handleAssessDelete = async (id) => {
+        const isSucceed = await Delete_API("deleteWelcomeAssesInfo", id, "Welcome")
+        if (isSucceed) { setReload(!reload) };
     }
     useEffect(() => {
-
         if (comInfo?.company_id) {
-            fetch(`http://localhost:3333/getWelcomeAssesById/${comInfo?.company_id}`)
+            fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
                 .then(res => res.json())
                 .then(data => setAssessInfo(data?.data[0]?.assessment_info))
+
         }
     }, [comInfo?.company_id, reload])
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
     const checkCompanySelector = () => {
-        // comList?.assessment_info
-        console.log(comList[0]?.assessment_info, "comList?.assessment_info")
-        if (comInfo.company_id && !comList[0]?.assessment_info) {
+        if (comInfo.company_id && !assessInfo) {
             setState(!false)
         }
         else {
@@ -172,85 +132,21 @@ export default function AddCompnayInfo({ industries, department, roles, location
                         rows={4}
                         placeholder="Enter Welcome Text"
                     />
-
-                    <Autocomplete
-
-                        onChange={(event, newValue) => {
-                            handleAssessInfo("all_industry", newValue);
-                        }}
-                        multiple
+                    <CustomAutocomplete
+                        handleAssessInfo={handleAssessInfo}
                         options={allIndustries}
-                        disableCloseOnSelect
-                        getOptionLabel={(option) => option}
-                        renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                                <Checkbox
-                                    icon={icon}
-
-                                    checkedIcon={checkedIcon}
-                                    style={{ marginRight: 8 }}
-                                    checked={selected}
-                                />
-                                {option}
-                            </li>
-                        )}
-                        style={{ width: 420 }}
-                        renderInput={(params) => (
-                            <TextField {...params} label="Industry" placeholder="Favorites" />
-                        )}
-                    />
-                    <Autocomplete
-                        onChange={(event, newValue) => {
-                            handleAssessInfo("all_location", newValue);
-                        }}
-                        multiple
-
+                        label="Industry"
+                        infoType="all_industry" />
+                    <CustomAutocomplete
+                        handleAssessInfo={handleAssessInfo}
                         options={allLocation}
-                        disableCloseOnSelect
-                        getOptionLabel={(option) => option}
-                        renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                                <Checkbox
-                                    icon={icon}
-
-                                    checkedIcon={checkedIcon}
-                                    style={{ marginRight: 8 }}
-                                    checked={selected}
-                                />
-                                {option}
-                            </li>
-                        )}
-                        style={{ width: 420 }}
-                        renderInput={(params) => (
-                            <TextField {...params} label="location" placeholder="Favorites" />
-                        )}
-                    />
-                    <Autocomplete
-                        onChange={(event, newValue) => {
-                            handleAssessInfo("all_department", newValue);
-                        }}
-                        multiple
-
+                        label="location"
+                        infoType="all_location" />
+                    <CustomAutocomplete
+                        handleAssessInfo={handleAssessInfo}
                         options={allDepartment}
-                        disableCloseOnSelect
-                        getOptionLabel={(option) => option}
-                        renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                                <Checkbox
-                                    icon={icon}
-
-                                    checkedIcon={checkedIcon}
-                                    style={{ marginRight: 8 }}
-                                    checked={selected}
-                                />
-                                {option}
-                            </li>
-                        )}
-                        style={{ width: 420 }}
-                        renderInput={(params) => (
-                            <TextField {...params} label="department" placeholder="Favorites" />
-                        )}
-                    />
+                        label="department"
+                        infoType="all_department" />
                     <Autocomplete
                         onChange={(event, newValue) => {
                             handleAssessInfo("all_role", newValue);
