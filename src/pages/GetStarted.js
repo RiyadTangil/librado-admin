@@ -6,26 +6,31 @@ import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import { ASSESSMENT_POST_API, Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
-
+import LoadingButton from '@mui/lab/LoadingButton';
 // ----------------------------------------------------------------------
 export default function GetStarted() {
   const [comList, setComList] = useState([]);
   const [staterInfo, setStaterInfo] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
   const [reload, setReload] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [comInfo, setComInfo] = useState([])
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
   }
-  const [selectedFile, setSelectedFile] = useState(null);
+
   const [state, setState] = useState(false);
-  const [preview, setPreview] = useState(null);
   const handleImgUpload = async (img) => {
-    const img_url = await IMG_UPLOAD_API(img)
-    if (img_url) {
-      setImgUrl(img_url);
+    setLoading(true)
+    const isSucceed = await IMG_UPLOAD_API(img)
+    if (isSucceed) {
+      setImgUrl(isSucceed);
+      setLoading(false)
+    }
+    else {
+      setLoading(false)
     }
   }
 
@@ -36,33 +41,6 @@ export default function GetStarted() {
     }
     const isSucceed = await ASSESSMENT_POST_API("addGettingInfo", comInfo?.company_id, body, "Getting Info")
     if (isSucceed) { setReload(!reload); }
-
-    // const loading = toast.loading('Please wait...!');
-    // console.log(comInfo?.company_id, "comInfo?.company_id")
-    // fetch(`http://localhost:3333/${staterInfo ? "update" : "add"}GettingInfo/${staterInfo ? staterInfo.id : comInfo?.company_id}`, {
-    //   method: `${staterInfo ? 'PUT' : 'POST'}`,
-    //   headers: {
-    //     'Content-Type': 'application/Json'
-    //   },
-    //   body: JSON.stringify({
-    //     "docs": comInfo?.docs,
-    //     "img": "img link"
-    //   })
-    // })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     toast.dismiss(loading);
-    //     setReload(!reload);
-    //     if (!data.error) {
-
-    //       return swal(`Getting Info ${staterInfo ? "updated" : "added"}`, `GettingInfo has been ${staterInfo ? "updated" : "added"} successful.`, "success");
-    //     }
-    //     swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-    //   })
-    //   .catch(error => {
-    //     toast.dismiss(loading);
-    //     swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-    //   })
   }
   const handleDelete = async () => {
     const isSucceed = await Delete_API("deleteGettingInfo", staterInfo.id, "GettingInfo")
@@ -80,7 +58,7 @@ export default function GetStarted() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getStarterInfo/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStaterInfo(data.data[0]?.getting_starts))
     }
@@ -128,7 +106,8 @@ export default function GetStarted() {
                   hidden
                 />
               </Button>
-              <Button
+              <LoadingButton
+                loading={loading}
                 onClick={onSubmit}
                 sx={{
                   position: 'absolute',
@@ -136,7 +115,7 @@ export default function GetStarted() {
                   marginRight: '10px',
                   right: '0',
                   top: '0',
-                }} variant="outlined" >{"Save"}</Button>
+                }} variant="outlined" >{"Save"}</LoadingButton>
             </Stack>
 
             <Box

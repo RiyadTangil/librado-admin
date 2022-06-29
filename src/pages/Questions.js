@@ -11,6 +11,7 @@ import QuestionCard from '../components/QuestionCard';
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
+import { Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 
 // ----------------------------------------------------------------------
 export default function Question() {
@@ -45,75 +46,49 @@ export default function Question() {
       swal("Failed!", "Please select a Category and  try again.", "error", { dangerMode: true });
     }
   }
-  const onSubmit = (updatingId) => {
-    const loading = toast.loading('Please wait...!');
-    // e.preventDefault()
-    const id = updatingId ? comInfo?.update_id : comInfo?.category_id
-    fetch(`http://localhost:3333/${updatingId ? "update" : "add"}Question/${id}`, {
-      method: updatingId ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        "question": comInfo.question,
-        "priority_info": comInfo.priority_info,
-        "options": optionInfo,
-        "question_type": comInfo.question_type,
-        "priority": comInfo.priority,
-      })
+  const handleAddQuestion = async (id) => {
+    const body = {
+      "question": comInfo.question,
+      "priority_info": comInfo.priority_info,
+      "options": optionInfo,
+      "question_type": comInfo.question_type,
+      "priority": comInfo.priority,
 
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setReload(!reload);
-        setOptionInfo([])
-
-        if (!data.error) {
-
-          return swal(`Question ${updatingId ? "updated" : "added"}`, `Question has been ${updatingId ? "updated" : "added"} successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+    }
+    const isSucceed = await POST_API(`addQuestion/${id}`, body, "Question")
+    if (isSucceed) {
+      setReload(!reload);
+      setOption([1])
+      setOptionInfo([])
+    }
   }
-  const handleDelete = (id) => {
+  const handleUpdateQuestion = async (id) => {
+    const body = {
+      "question": comInfo.question,
+      "priority_info": comInfo.priority_info,
+      "options": optionInfo,
+      "question_type": comInfo.question_type,
+      "priority": comInfo.priority,
+    }
+    const isSucceed = await UPDATE_API(`updateQuestion/${id}`, body, "Question")
+    if (isSucceed) {
+      setReload(!reload);
+      setOption([1])
+      setOptionInfo([])
+    }
+  }
 
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteQuestion/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({ title: 'React Hooks PUT Request Example' })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setReload(!reload);
-
-          return swal("Question Deleted", "Question has been Deleted successful.", "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-
-    console.log("delete", id)
+  const handleDelete = async (id) => {
+    const isSucceed = await Delete_API("deleteQuestion", id, "Question")
+    if (isSucceed) { setReload(!reload); }
   }
   useEffect(() => {
-    fetch("http://localhost:3333/questionByCategory")
+    fetch("https://librado.evamp.in/questionByCategory")
       .then(res => res.json())
       .then(data => setQuestions(data?.data))
   }, [reload])
   useEffect(() => {
-    fetch("http://localhost:3333/getCategories")
+    fetch("https://librado.evamp.in/getCategories")
       .then(res => res.json())
       .then(data => setCategories(data?.data))
   }, [])
@@ -133,7 +108,6 @@ export default function Question() {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = id
     setComInfo(newInfo);
-    console.log(newInfo, "newInfo")
 
   }
   return (
@@ -171,7 +145,7 @@ export default function Question() {
           >
             <Stack alignItems="center" justifyContent="center" mb={5}>
               <Button
-                onClick={() => onSubmit(comInfo?.update_id)}
+                onClick={() => comInfo?.update_id ? handleUpdateQuestion(comInfo?.update_id) : handleAddQuestion(comInfo?.category_id)}
                 sx={{
                   position: 'absolute',
                   marginTop: '10px',

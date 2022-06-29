@@ -2,11 +2,12 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 // material
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer, Checkbox } from '@mui/material';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Autocomplete, Drawer, Checkbox, FormControlLabel } from '@mui/material';
 // components
 import AddCompnayInfo from '../components/welcome/AddCompnayInfo';
 import Page from '../components/Page';
 import { Delete_API, POST_API } from 'src/utils/api';
+import CustomCheckBox from 'src/components/CustomCheckBox';
 
 // ----------------------------------------------------------------------
 export default function Welcome() {
@@ -19,6 +20,7 @@ export default function Welcome() {
   const [comInfo, setComInfo] = useState([])
   const [reload, setReload] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [checked, setChecked] = useState(true);
   const [drawerId, setDrawerId] = useState("");
   const [drawerInfo, setDrawerInfo] = useState([])
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -29,8 +31,9 @@ export default function Welcome() {
     setComInfo(newInfo);
   }
   const onSubmit = async (id) => {
-    const newObject = {}
+    const newObject = { is_default: checked }
     newObject[id] = comInfo[id]
+    console.log(newObject, "newObject")
     if (drawerId === "role") {
       newObject.role_categories = comInfo.role_categories.map(category => category.id)
     }
@@ -46,7 +49,7 @@ export default function Welcome() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:3333/getAllWelcomeInfo")
+    fetch("https://librado.evamp.in/getAllWelcomeInfo")
       .then(res => res.json())
       .then(data => {
         setLocation(data?.location)
@@ -61,12 +64,12 @@ export default function Welcome() {
     }
   }, [industries, department, roles, location])
   useEffect(() => {
-    fetch("http://localhost:3333/getCompany")
+    fetch("https://librado.evamp.in/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
   }, [])
   useEffect(() => {
-    fetch("http://localhost:3333/getCategories")
+    fetch("https://librado.evamp.in/getCategories")
       .then(res => res.json())
       .then(data => setCategories(data?.data))
   }, [])
@@ -208,11 +211,16 @@ export default function Welcome() {
               }}
               spacing={2}
             >
-              <TextField
-                onBlur={(e, value) => handleChange(e, value)}
-                id={drawerId}
-                label={drawerId}
-              />
+              <Stack direction="row" spacing={2}>
+                <TextField
+                  sx={{ width: "90%" }}
+                  onBlur={(e, value) => handleChange(e, value)}
+                  id={drawerId}
+                  label={drawerId}
+                />
+                <CustomCheckBox setChecked={setChecked} checked={checked} />
+              </Stack>
+
               {drawerId === "role" &&
                 <Autocomplete
                   onChange={(event, newValue) => {

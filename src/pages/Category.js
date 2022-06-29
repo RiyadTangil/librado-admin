@@ -8,6 +8,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
+import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -17,13 +18,14 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 // ----------------------------------------------------------------------
 export default function Category() {
   const [comList, setComList] = useState([]);
-  const [happyAssessInfo, setHappyAssessInfo] = useState(null);
-  const [responseData, setResponseData] = useState([]);
+  const [categoryAssessInfo, setCategoryAssessInfo] = useState(null);
   const [allQuestion, setAllQuestion] = useState([]);
   const [categories, setCategory] = useState([]);
   const [comInfo, setComInfo] = useState([])
   const [editId, setEditId] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [reload, setReload] = useState(false);
+  const [checked, setChecked] = useState(true);
   const [state, setState] = useState(false);
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
@@ -35,88 +37,44 @@ export default function Category() {
     newInfo.categories = selectedCategory;
     setComInfo(newInfo);
   }
-  const onSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${id ? `updateCategory/${id}` : "addCategory"}`, {
-      method: id ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        category_name: comInfo?.category_name,
-
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`Category ${id ? "updated" : "added"} `, `Category has been ${id ? "updated" : "added"} successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleAddCategory = async () => {
+    const body = {
+      category_name: comInfo?.category_name,
+      is_default: checked,
+    }
+    const isSucceed = await POST_API("addCategory", body, "Category")
+    if (isSucceed) { setReload(!reload); }
   }
-  const handleAssessmentSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/addCategoryAssessment/${comInfo.company_id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        categories: comInfo.categories.map(category => category.id)
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        const newInfo = { ...comInfo };
-        newInfo.categories = null;
-        setComInfo(newInfo);
-        
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`selectable Qsn added `, `selectable Qsn has been added successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleUpdateCategory = async (id) => {
+    const body = {
+      category_name: comInfo?.category_name,
+    }
+    const isSucceed = await UPDATE_API(`updateCategory/${id}`, body, "Category")
+    if (isSucceed) { setReload(!reload); }
   }
-  const handleDelete = (id, status) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${status ? "deleteCategoryAssessment" : "deleteCategory"}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setResponseData(data);
-          return swal(`${status ? "Category Info" : "Category"} Deleted`, `${status ? "Category Info" : "Category Qsn"} has been Deleted successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleAssessmentSubmit = async (id) => {
+    const body = {
+      categories: comInfo.categories.map(category => category.id)
+    }
+    const isSucceed = await ASSESSMENT_POST_API("addCategoryAssessment", comInfo.company_id, body, "selectable Qsn")
+    if (isSucceed) {
+      setReload(!reload);
+      setOpenDrawer(false)
+    }
+  }
+  const handleDelete = async (id, status) => {
+    const conditionalRoute = status ? "deleteCategoryAssessment" : "deleteCategory"
+
+    const isSucceed = await Delete_API(conditionalRoute, id, "Category")
+    if (isSucceed) { setReload(!reload) }
+
   }
   const checkCompanySelector = () => {
-    if (comInfo.company_id) {
+    if (comInfo.company_id && !categoryAssessInfo) {
       setOpenDrawer(!false)
+    }
+    else if (categoryAssessInfo) {
+      swal("Failed!", "Please reset the Company and  try again.", "error", { dangerMode: true });
     }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
@@ -124,13 +82,13 @@ export default function Category() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCategoryAssessment/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
-        .then(data => setHappyAssessInfo(data?.data[0]?.assess_category))
+        .then(data => setCategoryAssessInfo(data?.data[0]?.assess_category))
     }
-  }, [comInfo?.company_id, responseData])
+  }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("http://localhost:3333/getCategories")
+    fetch("https://librado.evamp.in/getCategories")
       .then(res => res.json())
       .then(data => {
         setCategory(data?.data)
@@ -139,7 +97,7 @@ export default function Category() {
 
       })
 
-  }, [responseData])
+  }, [reload])
   const handleEdit = (id) => {
     setEditId(id)
     setState(!state)
@@ -169,9 +127,9 @@ export default function Category() {
           <Grid item xs={4}>
             <Box display="flex" alignItems="center" justifyContent="end">
 
-              {happyAssessInfo &&
+              {categoryAssessInfo &&
                 <Button
-                  onClick={() => handleDelete(happyAssessInfo?.id, true)}
+                  onClick={() => handleDelete(categoryAssessInfo?.id, true)}
                   style={{ marginRight: 10 }}
                   size="large"
                   color="error"
@@ -216,7 +174,7 @@ export default function Category() {
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? onSubmit(editId) : onSubmit(false)}
+                onClick={() => editId ? handleUpdateCategory(editId) : handleAddCategory()}
                 variant="outlined"
                 color="success"
               >{editId ? "UPdate" : "Save"}

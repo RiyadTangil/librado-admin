@@ -1,27 +1,23 @@
 import swal from 'sweetalert';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer } from '@mui/material';
+import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@mui/material';
 // components
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
+import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
+import CustomCheckBox from 'src/components/CustomCheckBox';
 
-// ----------------------------------------------------------------------
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
-// ----------------------------------------------------------------------
 export default function Statements() {
   const [comList, setComList] = useState([]);
   const [happyAssessInfo, setHappyAssessInfo] = useState(null);
-  const [responseData, setResponseData] = useState([]);
-  const [allQuestion, setAllQuestion] = useState([]);
+  const [reload, setReload] = useState(false);
   const [statementQsns, setStatementQsn] = useState([]);
   const [comInfo, setComInfo] = useState([])
   const [editId, setEditId] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [checked, setChecked] = useState(true);
   const [state, setState] = useState(false);
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
@@ -33,85 +29,43 @@ export default function Statements() {
     newInfo.happinessQsn = value;
     setComInfo(newInfo);
   }
-  const onSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${id ? `updateStatementQsn/${id}` : "addStatementQsn"}`, {
-      method: id ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        qsn: comInfo?.question,
+  const handleAddStatement = async (id) => {
+    const body = {
+      qsn: comInfo?.question,
+      is_default: checked,
+    }
+    const isSucceed = await POST_API("addStatementQsn", body, "Statement question")
+    if (isSucceed) { setReload(!reload); }
 
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`Statement question ${id ? "updated" : "added"} `, `Statement Qsn has been ${id ? "updated" : "added"} successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
   }
-  const handleAssessmentSubmit = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/addStatementAssessInfo/${comInfo.company_id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/Json'
-      },
-      body: JSON.stringify({
-        most_likely: comInfo.most_likely,
-        least_likely: comInfo.least_likely
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        setResponseData(data.data);
-        if (!data.error) {
-
-          return swal(`selectable Qsn added `, `selectable Qsn has been added successful.`, "success");
-        }
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleUpdateStatement = async (id) => {
+    const body = {
+      qsn: comInfo?.question,
+    }
+    const isSucceed = await UPDATE_API(`updateStatementQsn/${id}`, body, "Statement question")
+    if (isSucceed) { setReload(!reload); }
   }
-  const handleDelete = (id, status) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/${status ? "deleteStatementAssessInfo" : "deleteStatementQsn"}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/Json'
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        if (data.success) {
-          setResponseData(data);
-          return swal(`${status ? "Assessment Info":"statement Qsn"} Deleted`, `${status ? "Assessment Info":"statement Qsn"} has been Deleted successful.`, "success");
-        }
-        swal("Failed!", "Something waent wrong! Please try again.", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", "Something went wrong! Please try again.", "error", { dangerMode: true });
-      })
+  const handleAssessmentSubmit = async (id) => {
+    const body = {
+      most_likely: comInfo.most_likely,
+      least_likely: comInfo.least_likely
+    }
+    const isSucceed = await ASSESSMENT_POST_API("addStatementAssessInfo", comInfo.company_id, body, "selectable Qsn")
+    if (isSucceed) { setReload(!reload) }
+  }
+  const handleDelete = async (id, status) => {
+    const conditionalRoute = status ? "deleteStatementAssessInfo" : "deleteStatementQsn"
+    const conditionalMessage = status ? "Assessment Info" : "statement Qsn"
+    const isSucceed = await Delete_API(conditionalRoute, id, conditionalMessage)
+    if (isSucceed) { setReload(!reload) }
+
   }
   const checkCompanySelector = () => {
-    if (comInfo.company_id) {
+    if (comInfo.company_id && !happyAssessInfo) {
       setOpenDrawer(!false)
+    }
+    else if (happyAssessInfo) {
+      swal("Failed!", "Reset the company  info to add again", "error", { dangerMode: true });
     }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
@@ -119,19 +73,19 @@ export default function Statements() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyStatementInfo/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.selectable_statement))
     }
-  }, [comInfo?.company_id, responseData])
+  }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("http://localhost:3333/getStatementQsn")
+    fetch("https://librado.evamp.in/getStatementQsn")
       .then(res => res.json())
       .then(data => {
         setStatementQsn(data)
       })
 
-  }, [responseData])
+  }, [reload])
   const handleEdit = (id) => {
     setEditId(id)
     setState(!state)
@@ -159,9 +113,9 @@ export default function Statements() {
           </Grid>
           <Grid item xs={4}>
             <Box display="flex" alignItems="center" justifyContent="end">
-               
+
               {happyAssessInfo &&
-                  <Button
+                <Button
                   onClick={() => handleDelete(happyAssessInfo?.id, true)}
                   style={{ marginRight: 10 }}
                   size="large"
@@ -204,10 +158,11 @@ export default function Statements() {
                 label="Question"
                 placeholder="Getting start doc"
               />
+              <CustomCheckBox setChecked={setChecked} checked={checked} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? onSubmit(editId) : onSubmit(false)}
+                onClick={() => editId ? handleUpdateStatement(editId) : handleAddStatement()}
                 variant="outlined"
                 color="success"
               >{editId ? "UPdate" : "Save"}

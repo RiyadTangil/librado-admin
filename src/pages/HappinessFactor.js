@@ -8,6 +8,7 @@ import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
 import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
+import CustomCheckBox from 'src/components/CustomCheckBox';
 
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -16,6 +17,7 @@ export default function HappinessFactor() {
   const [comList, setComList] = useState([]);
   const [happyAssessInfo, setHappyAssessInfo] = useState(null);
   const [responseData, setResponseData] = useState(false);
+  const [checked, setChecked] = useState(true);
   const [allQuestion, setAllQuestion] = useState([]);
   const [happinessQsns, setHappinessQs] = useState([]);
   const [comInfo, setComInfo] = useState([])
@@ -36,6 +38,7 @@ export default function HappinessFactor() {
     const body = {
       status: comInfo?.status,
       question: comInfo?.question,
+      is_default: checked,
     }
     const isSucceed = await POST_API("addHappinessQsn", body, "Happiness")
     if (isSucceed) { setResponseData(!responseData) };
@@ -65,23 +68,27 @@ export default function HappinessFactor() {
 
   }
   const checkCompanySelector = () => {
-    if (comInfo.company_id) {
+    if (comInfo.company_id && !happyAssessInfo) {
       setOpenDrawer(!false)
     }
+    else if (happyAssessInfo) {
+      swal("Failed!", "Please rest the Company to  add again.", "error", { dangerMode: true });
+    }
+
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
     }
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyAssessInfo/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.happiness_assessment))
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
 
-    fetch("http://localhost:3333/getHappinessQsn")
+    fetch("https://librado.evamp.in/getHappinessQsn")
       .then(res => res.json())
       .then(data => {
         setHappinessQs(data)
@@ -157,23 +164,24 @@ export default function HappinessFactor() {
             sx={boxStyle}
             role="presentation"
           >
+            <TextField
+              onBlur={(e, value) => handleChange(e, value)}
+              id="question"
+              sx={{ width: '100%' }}
+              label="Question"
+              placeholder="Getting start doc"
+            />
             <Stack alignItems="center" direction="row" justifyContent="space-between" >
 
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
-                id="question"
-                sx={{ width: '65%' }}
-                label="Question"
-                placeholder="Getting start doc"
-              />
-              <TextField
-                onBlur={(e, value) => handleChange(e, value)}
                 id="status"
                 type="number"
-                sx={{ width: '33%' }}
+                sx={{ width: '80%' }}
                 label="status"
                 placeholder="status"
               />
+              <CustomCheckBox setChecked={setChecked} checked={checked} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button

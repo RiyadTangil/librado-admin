@@ -22,7 +22,6 @@ import {
   TextField,
   IconButton
 } from '@mui/material';
-// components
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
@@ -31,10 +30,9 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 //
 import USERLIST from '../_mocks_/user';
 import { Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
+import toast from 'react-hot-toast';
+import LoadingButton from '@mui/lab/LoadingButton';
 
-
-
-// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'S.No', label: 'S.No', alignRight: false },
@@ -43,12 +41,9 @@ const TABLE_HEAD = [
   { id: 'company_name', label: 'Company', alignRight: false },
   { id: 'role', label: 'Email Id', alignRight: false },
   { id: '3', label: 'Copy unique id', alignRight: false },
-
-  // { id: 'status', label: 'Status', alignRight: false },
   { id: '' }
 ];
 
-// ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -84,26 +79,13 @@ export default function CreateCompany() {
   const [comInfo, setComInfo] = useState(0);
   const [comList, setComList] = useState([]);
   const [reload, setReload] = useState(false);
-  // const [imgLoading, setImgLoading] = useState(false);
   const [imgUrl, setImgUrl] = useState(null);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  useEffect(() => {
-    // create the preview
-    if (selectedFile) {
-      const objectUrl = URL.createObjectURL(selectedFile);
-      setPreview(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl)
-    }
-
-    // free memory when ever this component is unmounted
-  }, [selectedFile])
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -139,6 +121,12 @@ export default function CreateCompany() {
   }
 
   const onSubmit = async () => {
+    if (!imgUrl) {
+      return toast.error("Please upload your image. try again")
+    }
+    else if (!comInfo.company_name || !comInfo.email) {
+      return toast.error(`Please enter your company ${!comInfo.company_name ? "name" : "email"}`)
+    }
     const body = {
       "name": comInfo.name,
       "company_name": comInfo.company_name,
@@ -155,14 +143,14 @@ export default function CreateCompany() {
   }
 
   const handleImgUpload = async (img) => {
-    const img_url = await IMG_UPLOAD_API(img)
-    if (img_url) {
-      setImgUrl(img_url);
-    }
+    setLoading(true)
+    const isSucceed = await IMG_UPLOAD_API(img)
+    if (isSucceed) { setImgUrl(isSucceed) }
+    setLoading(false)
   }
 
   useEffect(() => {
-    fetch("http://localhost:3333/getCompany")
+    fetch("https://librado.evamp.in/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
   }, [reload])
@@ -211,15 +199,16 @@ export default function CreateCompany() {
                   hidden
                 />
               </Button>
-              <Button
+              <LoadingButton
                 onClick={onSubmit}
+                loading={loading}
                 sx={{
                   position: 'absolute',
                   marginTop: '10px',
                   marginRight: '10px',
                   right: '0',
                   top: '0',
-                }} variant="outlined" >Save</Button>
+                }} variant="outlined" >Save</LoadingButton>
             </Stack>
 
             <Box
@@ -247,8 +236,8 @@ export default function CreateCompany() {
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="email"
-                label="Email Id"
-                placeholder="Email Id"
+                label="Email"
+                placeholder="Email"
               />
 
             </Box>

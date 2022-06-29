@@ -10,7 +10,7 @@ import CompanyList from '../components/CompanyList';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import PlanningCard from 'src/components/PlanningCard';
-import { ASSESSMENT_GET_API, ASSESSMENT_POST_API, Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
+import { ASSESSMENT_POST_API, Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -91,13 +91,13 @@ export default function Planning() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setAssessPlan(data?.data[0]?.assess_planning))
     }
   }, [comInfo?.company_id, reloadAssess])
   useEffect(() => {
-    fetch(`http://localhost:3333/getPlanning/`)
+    fetch(`https://librado.evamp.in/getPlanning/`)
       .then(res => res.json())
       .then(data => setPlannings(data.data))
 

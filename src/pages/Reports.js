@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 // material
 import {
@@ -22,30 +20,24 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  TextField,
-  OutlinedInput,
-  InputAdornment,
   IconButton,
   Collapse
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 
 // components
-import { Icon } from '@iconify/react';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
-import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
-import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 //
 import USERLIST from '../_mocks_/user';
 import toast from 'react-hot-toast';
 import swal from 'sweetalert';
+import { Delete_API } from 'src/utils/api';
 
 
 // ----------------------------------------------------------------------
@@ -125,24 +117,6 @@ export default function Reports() {
     setSelected([]);
   };
 
-  const handleClick = (event, company_name) => {
-    const selectedIndex = selected.indexOf(company_name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, company_name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -162,33 +136,14 @@ export default function Reports() {
 
   const isUserNotFound = filteredUsers.length === 0;
   useEffect(() => {
-    fetch("http://localhost:3333/reports")
+    fetch("https://librado.evamp.in/reports")
       .then(res => res.json())
       .then(data => setReports(data?.data))
 
   }, [reload])
-  const handleReportDelete = (id) => {
-    const loading = toast.loading('Please wait...!');
-    fetch(`http://localhost:3333/deleteReports/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-
-      }
-    }).then(response => response.json())
-      .then(data => {
-        toast.dismiss(loading);
-        console.log(data, "data")
-        if (data.success) {
-          setReload(!reload);
-          return swal("Report deleted", "Report has been deleted successful.", "success");
-        }
-        swal("Failed!", data?.error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
-      .catch(error => {
-        toast.dismiss(loading);
-        swal("Failed!", error?.message || "Something went wrong! Please try again", "error", { dangerMode: true });
-      })
+  const handleReportDelete = async (id) => {
+    const isSucceed = await Delete_API("deleteReports", id, "Report")
+    if (isSucceed) { setReload(!reload); }
   }
 
   return (
