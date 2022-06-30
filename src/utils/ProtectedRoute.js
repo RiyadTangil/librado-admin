@@ -1,11 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-const ProtectedRoute = ({ user, children }) => {
-    if (!user) {
-        return <Navigate to="/landing" replace />;
+const ProtectedRoute = ({ children }) => {
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo")) || {}
+    if (!loginInfo?.email) {
+        return <Navigate to="/login" replace />;
     }
-    return <div>hello</div>;
+    return children;
 };
 
 export default ProtectedRoute;

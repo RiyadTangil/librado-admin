@@ -32,7 +32,7 @@ export default function Statements() {
   const handleAddStatement = async (id) => {
     const body = {
       qsn: comInfo?.question,
-      is_default: checked,
+      default: checked,
     }
     const isSucceed = await POST_API("addStatementQsn", body, "Statement question")
     if (isSucceed) { setReload(!reload); }

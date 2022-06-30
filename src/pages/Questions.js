@@ -11,7 +11,7 @@ import QuestionCard from '../components/QuestionCard';
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
-import { Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
+import { Delete_API, GET_API, POST_API, UPDATE_API } from 'src/utils/api';
 
 // ----------------------------------------------------------------------
 export default function Question() {
@@ -82,15 +82,15 @@ export default function Question() {
     const isSucceed = await Delete_API("deleteQuestion", id, "Question")
     if (isSucceed) { setReload(!reload); }
   }
+  const getApiData = async (route, state) => {
+    const info = await GET_API(route)
+    state ? setQuestions(info) : setCategories(info)
+  }
   useEffect(() => {
-    fetch("https://librado.evamp.in/questionByCategory")
-      .then(res => res.json())
-      .then(data => setQuestions(data?.data))
+    getApiData("questionByCategory", 1)
   }, [reload])
   useEffect(() => {
-    fetch("https://librado.evamp.in/getCategories")
-      .then(res => res.json())
-      .then(data => setCategories(data?.data))
+    getApiData("getCategories", 0)
   }, [])
   const btn = {
     position: 'absolute',

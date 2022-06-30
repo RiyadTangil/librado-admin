@@ -38,7 +38,7 @@ export default function HappinessFactor() {
     const body = {
       status: comInfo?.status,
       question: comInfo?.question,
-      is_default: checked,
+      default: checked,
     }
     const isSucceed = await POST_API("addHappinessQsn", body, "Happiness")
     if (isSucceed) { setResponseData(!responseData) };

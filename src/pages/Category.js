@@ -40,7 +40,7 @@ export default function Category() {
   const handleAddCategory = async () => {
     const body = {
       category_name: comInfo?.category_name,
-      is_default: checked,
+      default: checked,
     }
     const isSucceed = await POST_API("addCategory", body, "Category")
     if (isSucceed) { setReload(!reload); }

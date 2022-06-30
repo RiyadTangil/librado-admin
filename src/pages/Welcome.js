@@ -31,7 +31,7 @@ export default function Welcome() {
     setComInfo(newInfo);
   }
   const onSubmit = async (id) => {
-    const newObject = { is_default: checked }
+    const newObject = { default: checked }
     newObject[id] = comInfo[id]
     console.log(newObject, "newObject")
     if (drawerId === "role") {

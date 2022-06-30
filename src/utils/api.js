@@ -1,6 +1,11 @@
 import toast from "react-hot-toast";
 import swal from 'sweetalert';
+const getTokens = () => {
+    const token = JSON.parse(localStorage.getItem("loginInfo")).token
+    return token || {}
+}
 export const POST_API = async (route, body, message) => {
+
     let isSuccess = false;
     const loading = toast.loading('Please wait...!');
     await fetch(`https://librado.evamp.in/${route}`, {
@@ -14,6 +19,7 @@ export const POST_API = async (route, body, message) => {
         .then(data => {
             toast.dismiss(loading);
             if (data.success) {
+
                 swal(`${message} added`, `${message} has been  added successful.`, "success");
                 isSuccess = true;
             }
@@ -100,7 +106,23 @@ export const Delete_API = async (route, id, message) => {
     return isSuccess;
 
 }
+export const GET_API = async (route) => {
+    const token = await getTokens();
+    let isSuccess = [];
+    await fetch(`https://librado.evamp.in/${route}`, {
+        method: 'get',
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            isSuccess = data?.data
 
+        })
+    return isSuccess;
+
+}
 export const IMG_UPLOAD_API = async (img) => {
     let imgUrl = null;
     const formData = new FormData()
@@ -122,7 +144,6 @@ export const IMG_UPLOAD_API = async (img) => {
         })
     return imgUrl;
 }
-
 export const ASSESSMENT_GET_API = async (id) => {
     // let   result;
     // await fetch(`https://librado.evamp.in/getCompanyById/${id}`)

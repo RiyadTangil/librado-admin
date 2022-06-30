@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import swal from 'sweetalert';
+import jwt_decode from "jwt-decode";
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
@@ -49,7 +50,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [logState, setLogState] = useState(false)
   const handleLogin = (info) => {
- 
+
     const loading = toast.loading('Please wait...!');
     fetch("https://librado.evamp.in/login", {
       method: 'POST',
@@ -64,7 +65,9 @@ export default function Login() {
       .then(response => response.json())
       .then(data => {
         toast.dismiss(loading);
-        // setResponseData(data.data);
+
+        localStorage.setItem("loginInfo", JSON.stringify({ token: data?.access_token, email: data.user.email }));
+
         if (!data.error) {
           navigate('/dashboard/app', { replace: true });
           toast.success(' logged in Successfully!')
@@ -80,50 +83,52 @@ export default function Login() {
       })
   }
   return (
-    <RootStyle title="Login">
-      {/* <AuthLayout>
+    <>
+      <RootStyle title="Login">
+        {/* <AuthLayout>
         Don’t have an account? &nbsp;
         <Link underline="none" variant="subtitle2" component={RouterLink} to="/register">
           Get started
         </Link>
       </AuthLayout> */}
 
-      <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
-        {/* <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
+        <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
+          {/* <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
           Hi, Welcome Back
         </Typography> */}
-        {/* <img sx={{ width: '100%' }} src="/static/illustrations/login_bg.png" alt="login" /> */}
-      </SectionStyle>
+          {/* <img sx={{ width: '100%' }} src="/static/illustrations/login_bg.png" alt="login" /> */}
+        </SectionStyle>
 
-      <Container maxWidth="sm">
-        <ContentStyle>
-          <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" gutterBottom>
-              Welcome Back
+        <Container maxWidth="sm">
+          <ContentStyle>
+            <Box sx={{ mb: 5 }}>
+              <Typography variant="h4" gutterBottom>
+                Welcome Back
+              </Typography>
+              <Typography sx={{ color: 'text.secondary' }}>
+                Enter your email and password to sign in
+              </Typography>
+            </Box>
+            {/* <AuthSocial /> */}
+
+            <LoginForm handleLogin={handleLogin} logState={logState} />
+
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{
+                mt: 3,
+                display: { sm: 'none' }
+              }}
+            >
+              Don’t have an account?&nbsp;
+              <Link variant="subtitle2" component={RouterLink} to="register" underline="hover">
+                Get started
+              </Link>
             </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-              Enter your email and password to sign in
-            </Typography>
-          </Box>
-          {/* <AuthSocial /> */}
-
-          <LoginForm handleLogin={handleLogin} logState={logState} />
-
-          <Typography
-            variant="body2"
-            align="center"
-            sx={{
-              mt: 3,
-              display: { sm: 'none' }
-            }}
-          >
-            Don’t have an account?&nbsp;
-            <Link variant="subtitle2" component={RouterLink} to="register" underline="hover">
-              Get started
-            </Link>
-          </Typography>
-        </ContentStyle>
-      </Container>
-    </RootStyle>
+          </ContentStyle>
+        </Container>
+      </RootStyle>
+    </>
   );
 }
