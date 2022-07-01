@@ -129,7 +129,7 @@ export default function CreateCompany() {
     }
     const body = {
       "name": comInfo.name,
-      "company_name": comInfo.company_name,
+      "company_name": comInfo.company_name.replace(/\s+/g, '-').toLowerCase(),
       "email": comInfo.email,
       "img_url": imgUrl,
       "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,

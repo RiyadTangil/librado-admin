@@ -175,7 +175,7 @@ export default function Reports() {
                 <TableBody>
                   {reports
                     .map((report, index) => {
-                      const { id, email, company_name, company, avatarUrl, reports } = report;
+                      const { id, email, company_name, company, img_url, reports } = report;
                       const isItemSelected = selected.indexOf(company_name) !== -1;
 
                       return (
@@ -198,7 +198,7 @@ export default function Reports() {
                             </TableCell>
                             <TableCell align="left">
                               {' '}
-                              <Avatar alt={company_name} src="https://i.ibb.co/hFpDTpy/download.png" />
+                              <Avatar alt={company_name} src={img_url} />
                             </TableCell>
                             <TableCell align="left">{company_name}</TableCell>
                             <TableCell align="left">{email}</TableCell>

@@ -51,7 +51,10 @@ export default function GetStarted() {
     if (comInfo.company_id && !staterInfo) {
       setState(!false)
     }
-    // swal("Failed!", `${!comList[0]?.assessment_info ? "Please select a Company and  try again." : "Please reset the information to add again"} `, "error", { dangerMode: true });
+    else if (staterInfo) {
+
+      swal("Failed!", "Please reset the information to add again", "error", { dangerMode: true });
+    }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
     }

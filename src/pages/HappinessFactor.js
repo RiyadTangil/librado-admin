@@ -72,7 +72,7 @@ export default function HappinessFactor() {
       setOpenDrawer(!false)
     }
     else if (happyAssessInfo) {
-      swal("Failed!", "Please rest the Company to  add again.", "error", { dangerMode: true });
+      swal("Failed!", "Please reset the Company to  add again.", "error", { dangerMode: true });
     }
 
     else {

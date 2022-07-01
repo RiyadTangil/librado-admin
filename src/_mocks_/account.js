@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
-
+const email = JSON.parse(localStorage.getItem("loginInfo")).email
 const account = {
-  displayName: 'Riyad Hasan',
-  email: 'demo@smdevops',
+  displayName: 'Admin',
+  email: email || 'admin@gmail.com',
   photoURL: '/static/mock-images/avatars/avatar_default.jpg'
 };
 
