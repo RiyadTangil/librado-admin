@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
-const email = JSON.parse(localStorage.getItem("loginInfo")).email
+const loginInfo = JSON.parse(localStorage.getItem("loginInfo")) || {}
 const account = {
   displayName: 'Admin',
-  email: email || 'admin@gmail.com',
+  email: loginInfo?.email || 'admin@gmail.com',
   photoURL: '/static/mock-images/avatars/avatar_default.jpg'
 };
 

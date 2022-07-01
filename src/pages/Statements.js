@@ -41,6 +41,7 @@ export default function Statements() {
   const handleUpdateStatement = async (id) => {
     const body = {
       qsn: comInfo?.question,
+      default: checked,
     }
     const isSucceed = await UPDATE_API(`updateStatementQsn/${id}`, body, "Statement question")
     if (isSucceed) { setReload(!reload); }

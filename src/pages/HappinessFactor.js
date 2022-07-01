@@ -47,6 +47,7 @@ export default function HappinessFactor() {
     const body = {
       status: comInfo?.status,
       question: comInfo?.question,
+      default: checked,
     }
     const isSucceed = await UPDATE_API(`updateHappinessQsn/${id}`, body, "Happiness")
     if (isSucceed) { setResponseData(!responseData) };

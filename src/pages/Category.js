@@ -9,6 +9,7 @@ import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
 import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
+import CustomCheckBox from 'src/components/CustomCheckBox';
 
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -48,6 +49,7 @@ export default function Category() {
   const handleUpdateCategory = async (id) => {
     const body = {
       category_name: comInfo?.category_name,
+      default: checked,
     }
     const isSucceed = await UPDATE_API(`updateCategory/${id}`, body, "Category")
     if (isSucceed) { setReload(!reload); }
@@ -171,13 +173,15 @@ export default function Category() {
                 label="category name"
                 placeholder="category name"
               />
+
+              <CustomCheckBox setChecked={setChecked} checked={checked} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
                 onClick={() => editId ? handleUpdateCategory(editId) : handleAddCategory()}
                 variant="outlined"
                 color="success"
-              >{editId ? "UPdate" : "Save"}
+              >{editId ? "Update" : "Save"}
               </Button>
             </Stack>
           </Box>
