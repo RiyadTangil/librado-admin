@@ -48,7 +48,10 @@ export default function Planning() {
     const urlList = comInfo.planning_info.map(item => item.img_url)
     const body = { planning_assessment: urlList }
     const isSucceed = await ASSESSMENT_POST_API("addPlanAssesInfo", comInfo.company_id, body, "Planning")
-    if (isSucceed) { setReloadAssess(!reloadAssess) };
+    if (isSucceed) {
+      setReloadAssess(!reloadAssess)
+      setState(false)
+    };
 
 
   }

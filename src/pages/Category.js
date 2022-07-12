@@ -23,7 +23,7 @@ export default function Category() {
   const [allQuestion, setAllQuestion] = useState([]);
   const [categories, setCategory] = useState([]);
   const [comInfo, setComInfo] = useState([])
-  const [editId, setEditId] = useState(null);
+  const [editQsn, setEditQsn] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [reload, setReload] = useState(false);
   const [checked, setChecked] = useState(true);
@@ -100,13 +100,19 @@ export default function Category() {
       })
 
   }, [reload])
-  const handleEdit = (id) => {
-    setEditId(id)
+  useEffect(() => {
+    fetch("https://geolocation-db.com/json/")
+      .then(res => res.json())
+      .then(data => console.log(data, "data"))
+
+  }, [reload])
+  const handleEdit = (qsn) => {
+    setEditQsn(qsn)
     setState(!state)
 
   }
   const handleAddQsn = () => {
-    setEditId(null)
+    setEditQsn(null)
     setState(!state)
   }
   const boxStyle = {
@@ -170,7 +176,7 @@ export default function Category() {
                 onBlur={(e, value) => handleChange(e, value)}
                 id="category_name"
                 sx={{ width: '100%' }}
-                label="category name"
+                label={editQsn ? editQsn.category_name : "category name"}
                 placeholder="category name"
               />
 
@@ -178,10 +184,10 @@ export default function Category() {
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? handleUpdateCategory(editId) : handleAddCategory()}
+                onClick={() => editQsn ? handleUpdateCategory(editQsn.id) : handleAddCategory()}
                 variant="outlined"
                 color="success"
-              >{editId ? "Update" : "Save"}
+              >{editQsn ? "Update" : "Save"}
               </Button>
             </Stack>
           </Box>

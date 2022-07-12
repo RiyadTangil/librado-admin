@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import * as React from 'react';
 
 // material
+import { Edit } from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -28,8 +29,9 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 //
+import DeleteIcon from '@mui/icons-material/Delete';
 import USERLIST from '../_mocks_/user';
-import { Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
+import { Delete_API, IMG_UPLOAD_API, POST_API, UPDATE_API } from 'src/utils/api';
 import toast from 'react-hot-toast';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -78,14 +80,17 @@ export default function CreateCompany() {
   const [page, setPage] = useState(0);
   const [comInfo, setComInfo] = useState(0);
   const [comList, setComList] = useState([]);
+  const [items, setItems] = useState([]);
   const [reload, setReload] = useState(false);
   const [imgUrl, setImgUrl] = useState(null);
+  const [editCompany, setEditCompany] = useState(null);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [state, setState] = useState(false);
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -111,7 +116,10 @@ export default function CreateCompany() {
   };
 
   const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
+    const searchText = event.target.value
+    const filteredItems = comList.filter(company => company?.company_name.toLowerCase().includes(searchText.toLowerCase()))
+    setItems(searchText ? filteredItems : comList)
+    setFilterName(searchText)
   };
   const handleChange = (e, value) => {
     const newInfo = { ...comInfo };
@@ -135,11 +143,36 @@ export default function CreateCompany() {
       "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,
     }
     const isSucceed = await POST_API("addCompany", body, "Company")
-    if (isSucceed) { setReload(!reload) }
+    if (isSucceed) {
+      setReload(!reload)
+      setState(false)
+    }
   }
   const handleDelete = async (id) => {
     const isSucceed = await Delete_API("deleteCompany", id, "Company")
     if (isSucceed) { setReload(!reload) }
+  }
+  const handleEdit = async (company) => {
+    setEditCompany(company)
+    setState(true)
+    setImgUrl(company.img_url)
+  }
+  const handleUpdate = async (id) => {
+    const body = {
+      "name": comInfo.name ? comInfo.name : null,
+      "email": comInfo.email ? comInfo.email : null,
+      "img_url": imgUrl ? imgUrl : null,
+      "unique_id": `https://peopleinsight.netlify.app/${comInfo.company_name}/home`,
+    }
+    if (comInfo.company_name) {
+      body["company_name"] = comInfo.company_name.replace(/\s+/g, '-').toLowerCase();
+    }
+    const isSucceed = await UPDATE_API(`updateCompany/${editCompany.id}`, body, "Company")
+    if (isSucceed) { setReload(!reload) }
+  }
+  const handleDrawer = async () => {
+    setEditCompany(null)
+    setState(true)
   }
 
   const handleImgUpload = async (img) => {
@@ -152,7 +185,10 @@ export default function CreateCompany() {
   useEffect(() => {
     fetch("https://librado.evamp.in/getCompany")
       .then(res => res.json())
-      .then(data => setComList(data))
+      .then(data => {
+        setComList(data)
+        setItems(data)
+      })
   }, [reload])
 
   const handleClipboard = async (id) => {
@@ -162,8 +198,8 @@ export default function CreateCompany() {
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0;
-  const [state, setState] = useState(false);
+
+
   return (
     <Page title="User ">
       <Container>
@@ -172,7 +208,7 @@ export default function CreateCompany() {
             Company Create
           </Typography>
           <Button
-            onClick={() => setState(true)}
+            onClick={() => handleDrawer()}
             variant="contained"
             component={RouterLink}
             to="#"
@@ -200,7 +236,7 @@ export default function CreateCompany() {
                 />
               </Button>
               <LoadingButton
-                onClick={onSubmit}
+                onClick={editCompany ? () => handleUpdate() : () => onSubmit()}
                 loading={loading}
                 sx={{
                   position: 'absolute',
@@ -208,7 +244,7 @@ export default function CreateCompany() {
                   marginRight: '10px',
                   right: '0',
                   top: '0',
-                }} variant="outlined" >Save</LoadingButton>
+                }} variant="outlined" > {editCompany ? "Update" : " Save"}</LoadingButton>
             </Stack>
 
             <Box
@@ -223,20 +259,22 @@ export default function CreateCompany() {
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="name"
-                label="Name"
+                label={editCompany ? editCompany.name : "Name"}
                 placeholder="Name"
               />
 
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="company_name"
-                label="Company Name"
+
+                label={editCompany ? editCompany.company_name : "Company Name"}
                 placeholder="Company Name"
               />
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="email"
-                label="Email"
+                label={editCompany ? editCompany.email : "Email"}
+
                 placeholder="Email"
               />
 
@@ -267,14 +305,14 @@ export default function CreateCompany() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {comList?.map((company, index) => {
+                  {items?.map((company, index) => {
 
                     const isItemSelected = selected.indexOf(company?.name) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={company?.name}
+                        key={company?.id}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
@@ -305,7 +343,21 @@ export default function CreateCompany() {
 
 
                         <TableCell align="right">
-                          <UserMoreMenu company={company} handleDelete={handleDelete} />
+                          <Stack direction="row" spacing={2}>
+                            <Button
+                              sx={{ paddingRight: "5px", minWidth: "20px" }}
+                              onClick={() => handleDelete(company.id)}
+                              variant="outlined" color="error" startIcon={<DeleteIcon />}>
+                            </Button>
+                            <Button
+                              onClick={() => handleEdit(company)}
+                              variant="outlined"
+                              sx={{ marginLeft: "10px", color: "green", paddingRight: "5px", minWidth: "20px" }}
+                              startIcon={<Edit />}>
+
+                            </Button>
+                          </Stack>
+                          {/* <UserMoreMenu company={company} handleDelete={handleDelete} setState={setState} /> */}
                         </TableCell>
                       </TableRow>
                     );
@@ -316,7 +368,7 @@ export default function CreateCompany() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isUserNotFound && (
+                {items.length < 1 && (
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>

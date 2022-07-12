@@ -40,7 +40,10 @@ export default function GetStarted() {
       "img": imgUrl || ""
     }
     const isSucceed = await ASSESSMENT_POST_API("addGettingInfo", comInfo?.company_id, body, "Getting Info")
-    if (isSucceed) { setReload(!reload); }
+    if (isSucceed) {
+      setReload(!reload);
+      setState(false)
+    }
   }
   const handleDelete = async () => {
     const isSucceed = await Delete_API("deleteGettingInfo", staterInfo.id, "GettingInfo")

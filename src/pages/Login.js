@@ -22,8 +22,8 @@ const RootStyle = styled(Page)(({ theme }) => ({
 }));
 
 const SectionStyle = styled(Card)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 464,
+  width: '40%',
+  // maxWidth: 464,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',

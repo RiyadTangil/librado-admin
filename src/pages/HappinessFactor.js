@@ -21,7 +21,7 @@ export default function HappinessFactor() {
   const [allQuestion, setAllQuestion] = useState([]);
   const [happinessQsns, setHappinessQs] = useState([]);
   const [comInfo, setComInfo] = useState([])
-  const [editId, setEditId] = useState(null);
+  const [editQsn, setEditQsn] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [state, setState] = useState(false);
   const handleChange = (e) => {
@@ -41,7 +41,11 @@ export default function HappinessFactor() {
       default: checked,
     }
     const isSucceed = await POST_API("addHappinessQsn", body, "Happiness")
-    if (isSucceed) { setResponseData(!responseData) };
+    if (isSucceed) {
+      setResponseData(!responseData)
+      document.getElementById("question").value = ''
+      document.getElementById("status").value = ''
+    };
   }
   const handleUpdateHappinessQsn = async (id) => {
     const body = {
@@ -49,13 +53,20 @@ export default function HappinessFactor() {
       question: comInfo?.question,
       default: checked,
     }
-    const isSucceed = await UPDATE_API(`updateHappinessQsn/${id}`, body, "Happiness")
-    if (isSucceed) { setResponseData(!responseData) };
+    const isSucceed = await UPDATE_API(`updateHappinessQsn/${id}`, body, "Happiness Qsn")
+    if (isSucceed) {
+      setResponseData(!responseData)
+      document.getElementById("question").value = ''
+      document.getElementById("status").value = ''
+    };
   }
   const handleAssessmentSubmit = async (id) => {
     const body = { question: comInfo.happinessQsn }
     const isSucceed = await ASSESSMENT_POST_API("addHappyAssessInfo", comInfo.company_id, body, "Happiness")
-    if (isSucceed) { setResponseData(!responseData) };
+    if (isSucceed) {
+      setResponseData(!responseData)
+      setOpenDrawer(!false)
+    };
 
   }
   const deleteAssessInfo = async (id) => {
@@ -93,6 +104,7 @@ export default function HappinessFactor() {
       .then(res => res.json())
       .then(data => {
         setHappinessQs(data)
+        console.log(data, "data fo happy")
         setAllQuestion(data.map(item => (
           { question: item.question, status: item.status }
 
@@ -100,13 +112,13 @@ export default function HappinessFactor() {
       })
 
   }, [responseData])
-  const handleEdit = (id) => {
-    setEditId(id)
+  const handleEdit = (qsn) => {
+    setEditQsn(qsn)
     setState(!state)
 
   }
   const handleAddQsn = () => {
-    setEditId(null)
+    setEditQsn(null)
     setState(!state)
   }
   const boxStyle = {
@@ -169,8 +181,8 @@ export default function HappinessFactor() {
               onBlur={(e, value) => handleChange(e, value)}
               id="question"
               sx={{ width: '100%' }}
-              label="Question"
-              placeholder="Getting start doc"
+              label={editQsn ? editQsn.question : "Question"}
+              placeholder={"Getting start doc"}
             />
             <Stack alignItems="center" direction="row" justifyContent="space-between" >
 
@@ -186,10 +198,10 @@ export default function HappinessFactor() {
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? handleUpdateHappinessQsn(editId) : handleAddHappinessQsn()}
+                onClick={() => editQsn ? handleUpdateHappinessQsn(editQsn.id) : handleAddHappinessQsn()}
                 variant="outlined"
                 color="success"
-              >{editId ? "UPdate" : "Save"}
+              >{editQsn ? "UPdate" : "Save"}
               </Button>
             </Stack>
           </Box>

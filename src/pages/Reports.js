@@ -100,6 +100,7 @@ export default function Reports() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [reports, setReports] = useState([]);
+  const [items, setItems] = useState([]);
   const [reload, setReload] = useState(false);
 
   const handleRequestSort = (event, property) => {
@@ -127,18 +128,23 @@ export default function Reports() {
   };
 
   const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
+    const searchText = event.target.value
+    const filteredItems = reports.filter(company => company?.company_name.toLowerCase().includes(searchText.toLowerCase()))
+    setItems(searchText ? filteredItems : reports)
+    setFilterName(searchText)
+
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0;
   useEffect(() => {
     fetch("https://librado.evamp.in/reports")
       .then(res => res.json())
-      .then(data => setReports(data?.data))
+      .then(data => {
+        setReports(data?.data)
+        setItems(data?.data)
+      })
 
   }, [reload])
   const handleReportDelete = async (id) => {
@@ -173,7 +179,7 @@ export default function Reports() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {reports
+                  {items
                     .map((report, index) => {
                       const { id, email, company_name, company, img_url, reports } = report;
                       const isItemSelected = selected.indexOf(company_name) !== -1;
@@ -315,7 +321,7 @@ export default function Reports() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isUserNotFound && (
+                {items.length < 1 && (
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>

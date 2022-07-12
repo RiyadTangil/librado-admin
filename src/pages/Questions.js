@@ -1,27 +1,36 @@
 import { Link as RouterLink } from 'react-router-dom';
 import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 // material
 import { useState, useEffect } from 'react';
-import { positions } from '@mui/system';
-import { Grid, Button, Icon, Container, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup, Drawer, OutlinedInput } from '@mui/material';
+import { Grid, Tabs, Tab, Button, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup, Drawer, OutlinedInput } from '@mui/material';
 // components
 import QuestionCard from '../components/QuestionCard';
 // components
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
-import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
 import { Delete_API, GET_API, POST_API, UPDATE_API } from 'src/utils/api';
+import { TabPanel, TabContext } from '@mui/lab';
 
 // ----------------------------------------------------------------------
 export default function Question() {
   const [comInfo, setComInfo] = useState([])
   const [reload, setReload] = useState(false)
   const [state, setState] = useState(false);
+  const [editQsn, setEditingQsn] = useState(null);
   const [categories, setCategories] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [showQsn, setShowQsn] = useState([]);
   const [option, setOption] = useState([1]);
   const [optionInfo, setOptionInfo] = useState([]);
+  const [value, setValue] = useState("value-0");
+
+  const handleCge = (event, newValue) => {
+
+    console.log(newValue.split("-"), "splite restult")
+    setShowQsn(questions[0])
+    console.log(questions[0])
+    setValue(newValue);
+  };
   const handleChange = (e, value = 0) => {
     const newInfo = { ...comInfo };
     if (value) {
@@ -41,6 +50,7 @@ export default function Question() {
   const checkCompanySelector = () => {
     if (comInfo.category_id) {
       setState(true)
+      setEditingQsn(null)
     }
     else {
       swal("Failed!", "Please select a Category and  try again.", "error", { dangerMode: true });
@@ -55,11 +65,13 @@ export default function Question() {
       "priority": comInfo.priority,
 
     }
+    console.log(optionInfo, "optionInfo", comInfo.priority_info)
     const isSucceed = await POST_API(`addQuestion/${id}`, body, "Question")
     if (isSucceed) {
       setReload(!reload);
       setOption([1])
       setOptionInfo([])
+      document.getElementById("options+1").value = ""
     }
   }
   const handleUpdateQuestion = async (id) => {
@@ -75,6 +87,7 @@ export default function Question() {
       setReload(!reload);
       setOption([1])
       setOptionInfo([])
+      document.getElementById("options+1").value = ""
     }
   }
 
@@ -103,10 +116,11 @@ export default function Question() {
     position: 'relative',
 
   }
-  const handleEdit = (e, id) => {
+  const handleEdit = (e, qsn) => {
+    setEditingQsn(qsn)
     setState(true)
     const newInfo = { ...comInfo };
-    newInfo[e.target.id.split('-')[0]] = id
+    newInfo[e.target.id.split('-')[0]] = qsn.id
     setComInfo(newInfo);
 
   }
@@ -167,7 +181,7 @@ export default function Question() {
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="question"
-                label="question"
+                label={editQsn ? editQsn.question : "question"}
                 placeholder="question"
               />
               <Box
@@ -214,13 +228,43 @@ export default function Question() {
 
           </Drawer>
         </Grid>
-        {questions?.map(category => (
-          category?.questions?.map((question, index) => (
-            <QuestionCard handleDelete={handleDelete} handleEdit={handleEdit} question={question} key={index + 1} />
-          ))
+        <Box sx={{ width: '100%', typography: 'body1' }}>
+          <TabContext value={value}>
+            <Box sx={{ bgcolor: 'background.paper' }}>
 
-        ))}
+              <Tabs
+                value={value}
+                onChange={handleCge}
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="scrollable auto tabs example"
+              >
+                {questions?.map((category, index) => <Tab key={category.id} label={category.category_name} value={'value-' + index} />)}
+
+
+              </Tabs>
+            </Box>
+            {questions?.map((category, index) => (
+              <TabPanel key={category.id} value={'value-' + index} >
+                {
+                  category.questions.map((question, index) => <QuestionCard
+                    handleDelete={handleDelete}
+                    handleEdit={handleEdit}
+                    question={question}
+                    index={index + 1}
+                    key={index + 1} />)
+                }
+
+              </TabPanel>
+
+            ))
+
+            }
+
+          </TabContext>
+        </Box>
+
       </Card>
-    </Page>
+    </Page >
   );
 }

@@ -8,6 +8,7 @@ import AddCompnayInfo from '../components/welcome/AddCompnayInfo';
 import Page from '../components/Page';
 import { Delete_API, POST_API } from 'src/utils/api';
 import CustomCheckBox from 'src/components/CustomCheckBox';
+import { useRef } from 'react';
 
 // ----------------------------------------------------------------------
 export default function Welcome() {
@@ -22,7 +23,9 @@ export default function Welcome() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [checked, setChecked] = useState(true);
   const [drawerId, setDrawerId] = useState("");
+  const [defaultValue, setDefaultValue] = useState('');
   const [drawerInfo, setDrawerInfo] = useState([])
+  const r = useRef(); // <- This is your ref
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
   const handleChange = (e, value) => {
@@ -33,13 +36,16 @@ export default function Welcome() {
   const onSubmit = async (id) => {
     const newObject = { default: checked }
     newObject[id] = comInfo[id]
-    console.log(newObject, "newObject")
+
     if (drawerId === "role") {
       newObject.role_categories = comInfo.role_categories.map(category => category.id)
     }
     const itemName = id.charAt(0).toUpperCase() + id.slice(1);
     const isSucceed = await POST_API(`add${itemName}`, newObject, itemName)
-    if (isSucceed) { setReload(!reload) }
+    if (isSucceed) {
+      document.getElementById(id).value = ''
+      setReload(!reload)
+    }
   }
   const handleDelete = async (id, drawerId) => {
     const itemName = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);

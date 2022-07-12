@@ -15,7 +15,7 @@ export default function Statements() {
   const [reload, setReload] = useState(false);
   const [statementQsns, setStatementQsn] = useState([]);
   const [comInfo, setComInfo] = useState([])
-  const [editId, setEditId] = useState(null);
+  const [editQsn, setEditingQsn] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [checked, setChecked] = useState(true);
   const [state, setState] = useState(false);
@@ -35,7 +35,10 @@ export default function Statements() {
       default: checked,
     }
     const isSucceed = await POST_API("addStatementQsn", body, "Statement question")
-    if (isSucceed) { setReload(!reload); }
+    if (isSucceed) {
+      setReload(!reload);
+      document.getElementById("question").value = ''
+    }
 
   }
   const handleUpdateStatement = async (id) => {
@@ -44,7 +47,10 @@ export default function Statements() {
       default: checked,
     }
     const isSucceed = await UPDATE_API(`updateStatementQsn/${id}`, body, "Statement question")
-    if (isSucceed) { setReload(!reload); }
+    if (isSucceed) {
+      setReload(!reload)
+      document.getElementById("question").value = ''
+    }
   }
   const handleAssessmentSubmit = async (id) => {
     const body = {
@@ -52,7 +58,10 @@ export default function Statements() {
       least_likely: comInfo.least_likely
     }
     const isSucceed = await ASSESSMENT_POST_API("addStatementAssessInfo", comInfo.company_id, body, "selectable Qsn")
-    if (isSucceed) { setReload(!reload) }
+    if (isSucceed) {
+      setReload(!reload)
+      setOpenDrawer(false)
+    }
   }
   const handleDelete = async (id, status) => {
     const conditionalRoute = status ? "deleteStatementAssessInfo" : "deleteStatementQsn"
@@ -87,13 +96,13 @@ export default function Statements() {
       })
 
   }, [reload])
-  const handleEdit = (id) => {
-    setEditId(id)
+  const handleEdit = (qsn) => {
+    setEditingQsn(qsn)
     setState(!state)
 
   }
   const handleAddQsn = () => {
-    setEditId(null)
+    setEditingQsn(null)
     setState(!state)
   }
   const boxStyle = {
@@ -156,29 +165,32 @@ export default function Statements() {
                 onBlur={(e, value) => handleChange(e, value)}
                 id="question"
                 sx={{ width: '100%' }}
-                label="Question"
-                placeholder="Getting start doc"
+                label={editQsn ? editQsn.qsn : "Statement"}
+                placeholder="Cultural & Target Statement "
               />
               <CustomCheckBox setChecked={setChecked} checked={checked} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button
-                onClick={() => editId ? handleUpdateStatement(editId) : handleAddStatement()}
+                onClick={() => editQsn ? handleUpdateStatement(editQsn.id) : handleAddStatement()}
                 variant="outlined"
                 color="success"
-              >{editId ? "UPdate" : "Save"}
+              >{editQsn ? "UPdate" : "Save"}
               </Button>
             </Stack>
           </Box>
 
         </Drawer>
-        {statementQsns?.map(qsn =>
-          <HappyCard
-            key={qsn.id}
-            handleDelete={handleDelete}
-            handleEdit={handleEdit}
-            qsn={qsn}
-          />)}
+        <Grid container spacing={1}>
+          {statementQsns?.map(qsn =>
+            <HappyCard
+              key={qsn.id}
+              handleDelete={handleDelete}
+              handleEdit={handleEdit}
+              qsn={qsn}
+              multiCol={1}
+            />)}
+        </Grid>
         <Drawer
           anchor='right'
           open={openDrawer}

@@ -19,7 +19,7 @@ export const POST_API = async (route, body, message) => {
         .then(data => {
             toast.dismiss(loading);
             if (data.success) {
-
+                console.log(data.success, "data.success")
                 swal(`${message} added`, `${message} has been  added successful.`, "success");
                 isSuccess = true;
             }

@@ -36,11 +36,11 @@ const SearchStyle = styled(OutlinedInput)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-UserListToolbar.propTypes = {
-  numSelected: PropTypes.number,
-  filterName: PropTypes.string,
-  onFilterName: PropTypes.func
-};
+// UserListToolbar.propTypes = {
+//   numSelected: PropTypes.number,
+//   filterName: PropTypes.string,
+//   onFilterName: PropTypes.func
+// };
 
 export default function UserListToolbar({ numSelected, filterName, onFilterName }) {
   return (
@@ -58,7 +58,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
         </Typography>
       ) : (
         <SearchStyle
-          value={filterName}
+         
           onChange={onFilterName}
           placeholder="Search user..."
           startAdornment={
