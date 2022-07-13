@@ -8,7 +8,7 @@ export const POST_API = async (route, body, message) => {
 
     let isSuccess = false;
     const loading = toast.loading('Please wait...!');
-    await fetch(`http://localhost:3333/${route}`, {
+    await fetch(`https://librado.evamp.in/${route}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/Json'
@@ -32,11 +32,11 @@ export const POST_API = async (route, body, message) => {
     return isSuccess;
 
 }
-// http://localhost:3333
+// https://librado.evamp.in
 export const UPDATE_API = async (route, body, message) => {
     let isSuccess = false;
     const loading = toast.loading('Please wait...!');
-    await fetch(`http://localhost:3333/${route}`, {
+    await fetch(`https://librado.evamp.in/${route}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/Json'
@@ -62,7 +62,7 @@ export const UPDATE_API = async (route, body, message) => {
 export const ASSESSMENT_POST_API = async (route, id, body, message) => {
     let isSuccess = false;
     const loading = toast.loading('Please wait...!');
-    await fetch(`http://localhost:3333/${route}/${id}`, {
+    await fetch(`https://librado.evamp.in/${route}/${id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/Json'
@@ -86,7 +86,7 @@ export const ASSESSMENT_POST_API = async (route, id, body, message) => {
 export const Delete_API = async (route, id, message) => {
     let isSuccess = false;
     const loading = toast.loading('Please wait...!');
-    await fetch(`http://localhost:3333/${route}/${id}`, {
+    await fetch(`https://librado.evamp.in/${route}/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/Json'
@@ -110,7 +110,7 @@ export const Delete_API = async (route, id, message) => {
 export const GET_API = async (route) => {
     const token = await getTokens();
     let isSuccess = [];
-    await fetch(`http://localhost:3333/${route}`, {
+    await fetch(`https://librado.evamp.in/${route}`, {
         method: 'get',
         headers: {
             authorization: `Bearer ${token}`
@@ -128,7 +128,7 @@ export const IMG_UPLOAD_API = async (img) => {
     let imgUrl = null;
     const formData = new FormData()
     formData.append('file', img);
-    await fetch("http://localhost:3333/upload", {
+    await fetch("https://librado.evamp.in/upload", {
         method: 'POST',
         body: formData
     })
@@ -147,7 +147,7 @@ export const IMG_UPLOAD_API = async (img) => {
 }
 export const ASSESSMENT_GET_API = async (id) => {
     // let   result;
-    // await fetch(`http://localhost:3333/getCompanyById/${id}`)
+    // await fetch(`https://librado.evamp.in/getCompanyById/${id}`)
     //     .then(res => res.json())
     //     .then(data => {
     //         result = data?.data
