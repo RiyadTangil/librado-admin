@@ -8,27 +8,33 @@ import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
 import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 import CustomCheckBox from 'src/components/CustomCheckBox';
+import MultipleInput from 'src/components/MultipleInput';
+import SingleSelector from 'src/components/SingleSelector';
 
 export default function Statements() {
   const [comList, setComList] = useState([]);
-  const [happyAssessInfo, setHappyAssessInfo] = useState(null);
+  const [stmAssessInfo, setStmAssessInfo] = useState(null);
   const [reload, setReload] = useState(false);
   const [statementQsns, setStatementQsn] = useState([]);
   const [comInfo, setComInfo] = useState([])
   const [editQsn, setEditingQsn] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [checked, setChecked] = useState(true);
+  const [currentSteps, setCurrentSteps] = useState([]);
+  const [targetSteps, setTargetSteps] = useState([]);
   const [state, setState] = useState(false);
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
     setComInfo(newInfo);
   }
-  const handleAssessInfo = (value) => {
+
+  const handleAssessInfo = (id, info) => {
     const newInfo = { ...comInfo };
-    newInfo.happinessQsn = value;
+    newInfo[id] = info;
     setComInfo(newInfo);
   }
+
   const handleAddStatement = async (id) => {
     const body = {
       qsn: comInfo?.question,
@@ -53,11 +59,34 @@ export default function Statements() {
     }
   }
   const handleAssessmentSubmit = async (id) => {
-    const body = {
+    let body = {
       most_likely: comInfo.most_likely,
-      least_likely: comInfo.least_likely
+      least_likely: comInfo.least_likely,
+      current_stm_header: comInfo.current_stm_header,
+      current_steps: currentSteps,
+      target_stm_header: comInfo.target_stm_header,
+      target_steps: targetSteps
+
     }
-    const isSucceed = await ASSESSMENT_POST_API("addStatementAssessInfo", comInfo.company_id, body, "selectable Qsn")
+
+    let isSucceed = await ASSESSMENT_POST_API("addStatementAssessInfo", comInfo.company_id, body, "selectable Qsn")
+    if (isSucceed) {
+      setReload(!reload)
+      setOpenDrawer(false)
+    }
+  }
+  const handleAssessmentUpdate = async (id) => {
+    let body = {
+      most_likely: comInfo.most_likely,
+      least_likely: comInfo.least_likely,
+      current_stm_header: comInfo.current_stm_header,
+      current_steps: currentSteps,
+      target_stm_header: comInfo.target_stm_header,
+      target_steps: targetSteps
+
+    }
+
+    const isSucceed = await UPDATE_API(`updateStatementAssessInfo/${stmAssessInfo?.id}`, body, "Statement ")
     if (isSucceed) {
       setReload(!reload)
       setOpenDrawer(false)
@@ -71,25 +100,26 @@ export default function Statements() {
 
   }
   const checkCompanySelector = () => {
-    if (comInfo.company_id && !happyAssessInfo) {
+    if (comInfo.company_id) {
+      // if (comInfo.company_id && ! stmAssessInfo) {
       setOpenDrawer(!false)
     }
-    else if (happyAssessInfo) {
-      swal("Failed!", "Reset the company  info to add again", "error", { dangerMode: true });
-    }
+    // else if (stmAssessInfo) {
+    //   swal("Failed!", "Reset the company  info to add again", "error", { dangerMode: true });
+    // }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
     }
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
-        .then(data => setHappyAssessInfo(data?.data[0]?.selectable_statement))
+        .then(data => setStmAssessInfo(data?.data[0]?.selectable_statement))
     }
   }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("https://librado.evamp.in/getStatementQsn")
+    fetch("http://localhost:3333/getStatementQsn")
       .then(res => res.json())
       .then(data => {
         setStatementQsn(data)
@@ -124,9 +154,9 @@ export default function Statements() {
           <Grid item xs={4}>
             <Box display="flex" alignItems="center" justifyContent="end">
 
-              {happyAssessInfo &&
+              {stmAssessInfo &&
                 <Button
-                  onClick={() => handleDelete(happyAssessInfo?.id, true)}
+                  onClick={() => handleDelete(stmAssessInfo?.id, true)}
                   style={{ marginRight: 10 }}
                   size="large"
                   color="error"
@@ -196,13 +226,13 @@ export default function Statements() {
           open={openDrawer}
           onClose={() => setOpenDrawer(false)}
         >
-          <Box sx={{ width: 450 }} mb={3} >
+          <Box sx={{ width: 450 }} mb={3} p={2} >
             <Stack m={2} alignItems="center" direction="row" justifyContent="space-between" >
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="most_likely"
                 sx={{ width: '65%' }}
-                label="most likely"
+                label={stmAssessInfo?.most_likely || "most likely"}
                 type="number"
                 placeholder="most likely"
               />
@@ -211,15 +241,45 @@ export default function Statements() {
                 id="least_likely"
                 type="number"
                 sx={{ width: '33%' }}
-                label="least likely"
+                label={stmAssessInfo?.most_likely || "least likely"}
+
                 placeholder="least likely"
               />
             </Stack>
+
+            <TextField
+              onBlur={(e, value) => handleChange(e, value)}
+              id="current_stm_header"
+              sx={{ width: '100%', marginBottom: 1 }}
+              label={stmAssessInfo?.current_stm_header || " Current Header text"}
+              placeholder="Current Header text"
+            />
+            <TextField
+              onBlur={(e, value) => handleChange(e, value)}
+              id="target_stm_header"
+              sx={{ width: '100%', marginBottom: 1 }}
+              label={stmAssessInfo?.target_stm_header || " Target Header text"}
+              placeholder="Target Header text"
+            />
+            {/* <SingleSelector
+              handleAssessInfo={handleAssessInfo}
+              options={["Current", "Target"]}
+              label="Culture Type"
+              id="culture_type" /> */}
+            <MultipleInput
+              label={"Current steps"}
+              setOptionInfo={setCurrentSteps}
+              optionInfo={currentSteps} />
+            <MultipleInput
+              label={"Target steps"}
+              setOptionInfo={setTargetSteps}
+              optionInfo={targetSteps} />
+
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Button
                 color="success"
-                onClick={handleAssessmentSubmit}
-                sx={{ width: '30%' }}
+                onClick={stmAssessInfo ? handleAssessmentUpdate : handleAssessmentSubmit}
+                sx={{ width: '30%', marginTop: 3 }}
                 variant="outlined" >
                 Save
               </Button>

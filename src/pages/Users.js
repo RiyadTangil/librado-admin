@@ -6,6 +6,8 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import Page from '../components/Page';
 import UserCard from '../components/UserCard';
 import { Delete_API, POST_API } from 'src/utils/api';
+import CustomAutocomplete from 'src/components/CustomAutocomplete';
+import SingleSelector from 'src/components/SingleSelector';
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -21,9 +23,10 @@ export default function Users() {
     setComInfo(newInfo);
 
   }
-  const handleAssessInfo = (value) => {
+  const handleAssessInfo = (id, info) => {
     const newInfo = { ...comInfo };
-    newInfo.account_type = value;
+    newInfo[id] = info;
+ 
     setComInfo(newInfo);
   }
   const onSubmit = async () => {
@@ -32,6 +35,7 @@ export default function Users() {
       password: comInfo?.password,
       account_type: comInfo?.account_type,
     }
+  
     const isSucceed = await POST_API("registerUser", body, "User")
     if (isSucceed) {
       setReload(!reload);
@@ -44,7 +48,7 @@ export default function Users() {
 
   }
   useEffect(() => {
-    fetch("https://librado.evamp.in/getUsers")
+    fetch("http://localhost:3333/getUsers")
       .then(res => res.json())
       .then(data => {
         setUsers(data?.data)
@@ -103,31 +107,12 @@ export default function Users() {
                 label="password"
                 placeholder="password"
               />
-
-              <Autocomplete
-                onChange={(event, newValue) => {
-                  handleAssessInfo(newValue);
-                }}
-
+              <SingleSelector
+                handleAssessInfo={handleAssessInfo}
                 options={["Admin", "User"]}
-                disableCloseOnSelect
-                getOptionLabel={(option) => option}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    <Checkbox
-                      icon={icon}
+                label="User Type"
+                id="account_type" />
 
-                      checkedIcon={checkedIcon}
-                      style={{ marginRight: 8 }}
-                      checked={selected}
-                    />
-                    {option}
-                  </li>
-                )}
-                style={{ width: 420 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Question" placeholder="Favorites" />
-                )} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
               <Button

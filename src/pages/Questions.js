@@ -10,6 +10,7 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 import { Delete_API, GET_API, POST_API, UPDATE_API } from 'src/utils/api';
 import { TabPanel, TabContext } from '@mui/lab';
+import MultipleInput from 'src/components/MultipleInput';
 
 // ----------------------------------------------------------------------
 export default function Question() {
@@ -105,17 +106,8 @@ export default function Question() {
   useEffect(() => {
     getApiData("getCategories", 0)
   }, [])
-  const btn = {
-    position: 'absolute',
-    right: '0',
-    bottom: '0',
-    transform: 'translateY(70%)',
-    cursor: 'pointer'
-  }
-  const btnBox = {
-    position: 'relative',
 
-  }
+
   const handleEdit = (e, qsn) => {
     setEditingQsn(qsn)
     setState(true)
@@ -123,6 +115,17 @@ export default function Question() {
     newInfo[e.target.id.split('-')[0]] = qsn.id
     setComInfo(newInfo);
 
+  }
+  const btnBox = {
+    position: 'relative',
+
+  }
+  const btn = {
+    position: 'absolute',
+    right: '0',
+    bottom: '0',
+    transform: 'translateY(70%)',
+    cursor: 'pointer'
   }
   return (
     <Page title="Dashboard: Blog">
@@ -193,7 +196,11 @@ export default function Question() {
                 role="presentation"
 
               >
-                {option.map((item, index) =>
+                <MultipleInput
+                  label={"options"}
+                  setOptionInfo={setOptionInfo}
+                  F optionInfo={optionInfo} />
+                {/* {option.map((item, index) =>
                   <Box style={btnBox} key={index + 1}>
                     {option.length - 1 === option.lastIndexOf(item) &&
                       <Iconify onClick={() => setOption([...option, item + 1])} style={btn} color="green" icon="akar-icons:circle-plus-fill" />}
@@ -203,7 +210,7 @@ export default function Question() {
                       label="options"
                       placeholder="options"
                     />
-                  </Box>)}
+                  </Box>)} */}
               </Box>
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}

@@ -7,6 +7,8 @@ import Page from '../components/Page';
 import CompanyList from '../components/CompanyList';
 import { ASSESSMENT_POST_API, Delete_API, IMG_UPLOAD_API, POST_API } from 'src/utils/api';
 import LoadingButton from '@mui/lab/LoadingButton';
+import imgPreview from "./../assets/image-preview.png"
+import MultipleInput from 'src/components/MultipleInput';
 // ----------------------------------------------------------------------
 export default function GetStarted() {
   const [comList, setComList] = useState([]);
@@ -15,6 +17,7 @@ export default function GetStarted() {
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(false);
   const [comInfo, setComInfo] = useState([])
+  const [optionInfo, setOptionInfo] = useState([]);
   const handleChange = (e) => {
     const newInfo = { ...comInfo };
     newInfo[e.target.id.split('-')[0]] = e.target.value;
@@ -37,6 +40,9 @@ export default function GetStarted() {
   const onSubmit = async () => {
     const body = {
       "docs": comInfo?.docs,
+      "input_title": comInfo?.input_title,
+      "input_footer": comInfo?.input_footer,
+      "points": optionInfo,
       "img": imgUrl || ""
     }
     const isSucceed = await ASSESSMENT_POST_API("addGettingInfo", comInfo?.company_id, body, "Getting Info")
@@ -64,7 +70,7 @@ export default function GetStarted() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStaterInfo(data.data[0]?.getting_starts))
     }
@@ -135,10 +141,26 @@ export default function GetStarted() {
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="docs"
-                label="text"
+                label="top text"
                 multiline
                 rows={4}
-                placeholder="Getting start doc"
+                placeholder="text"
+              />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="input_title"
+                label="Input Title"
+                placeholder="text"
+              />
+              <MultipleInput
+                label={"points"}
+                setOptionInfo={setOptionInfo}
+                optionInfo={optionInfo} />
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="input_footer"
+                label="Input Footer"
+                placeholder="text"
               />
             </Box>
 
@@ -156,7 +178,7 @@ export default function GetStarted() {
 
           <Grid item xs={6}>
             <Stack sx={{ boxShadow: 6 }} position="relative" spacing={3}>
-              <img src="http://flxtable.com/wp-content/plugins/pl-platform/engine/ui/images/image-preview.png" alt="blog-1" />
+              <img src={staterInfo?.img ? staterInfo.img : imgPreview} alt="blog-1" />
             </Stack>
           </Grid>
           <Grid item xs={6}>

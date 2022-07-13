@@ -29,6 +29,7 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 //
+import avatar from './../assets/avatar_25.png'
 import DeleteIcon from '@mui/icons-material/Delete';
 import USERLIST from '../_mocks_/user';
 import { Delete_API, IMG_UPLOAD_API, POST_API, UPDATE_API } from 'src/utils/api';
@@ -183,7 +184,7 @@ export default function CreateCompany() {
   }
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/getCompany")
+    fetch("http://localhost:3333/getCompany")
       .then(res => res.json())
       .then(data => {
         setComList(data)
@@ -228,7 +229,7 @@ export default function CreateCompany() {
                 sx={{ "&:hover": { backgroundColor: "transparent" } }}
                 component="label"
               >
-                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={imgUrl ? imgUrl : "https://i.ibb.co/Tty4xkx/Upload.png"} alt="logo" />
+                <img style={{ width: "150px", height: "150px", borderRadius: "50%" }} src={imgUrl ? imgUrl : avatar} alt="logo" />
                 <input
                   type="file"
                   onChange={(e) => handleImgUpload(e.target.files[0])}

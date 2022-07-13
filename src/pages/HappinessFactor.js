@@ -93,14 +93,14 @@ export default function HappinessFactor() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.happiness_assessment))
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
 
-    fetch("https://librado.evamp.in/getHappinessQsn")
+    fetch("http://localhost:3333/getHappinessQsn")
       .then(res => res.json())
       .then(data => {
         setHappinessQs(data)
@@ -177,15 +177,23 @@ export default function HappinessFactor() {
             sx={boxStyle}
             role="presentation"
           >
-            <TextField
+            {/* <TextField
               onBlur={(e, value) => handleChange(e, value)}
               id="question"
               sx={{ width: '100%' }}
               label={editQsn ? editQsn.question : "Question"}
-              placeholder={"Getting start doc"}
-            />
+              placeholder={"question"}
+            /> */}
             <Stack alignItems="center" direction="row" justifyContent="space-between" >
 
+              <TextField
+                onBlur={(e, value) => handleChange(e, value)}
+                id="question"
+                sx={{ width: '80%' }}
+                label={editQsn ? editQsn.question : "Question"}
+                placeholder={"question"}
+              />
+              {/* 
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
                 id="status"
@@ -193,7 +201,7 @@ export default function HappinessFactor() {
                 sx={{ width: '80%' }}
                 label="status"
                 placeholder="status"
-              />
+              /> */}
               <CustomCheckBox setChecked={setChecked} checked={checked} />
             </Stack>
             <Stack alignItems="center" justifyContent="center">
