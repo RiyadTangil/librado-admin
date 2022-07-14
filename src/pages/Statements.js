@@ -1,5 +1,4 @@
 import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Grid, Button, Stack, Typography, Card, Box, TextField, Drawer } from '@mui/material';
 // components
@@ -9,7 +8,6 @@ import HappyCard from '../components/HappyCard';
 import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 import CustomCheckBox from 'src/components/CustomCheckBox';
 import MultipleInput from 'src/components/MultipleInput';
-import SingleSelector from 'src/components/SingleSelector';
 
 export default function Statements() {
   const [comList, setComList] = useState([]);
@@ -29,11 +27,11 @@ export default function Statements() {
     setComInfo(newInfo);
   }
 
-  const handleAssessInfo = (id, info) => {
-    const newInfo = { ...comInfo };
-    newInfo[id] = info;
-    setComInfo(newInfo);
-  }
+  // const handleAssessInfo = (id, info) => {
+  //   const newInfo = { ...comInfo };
+  //   newInfo[id] = info;
+  //   setComInfo(newInfo);
+  // }
 
   const handleAddStatement = async (id) => {
     const body = {
