@@ -52,7 +52,7 @@ export default function Login() {
   const handleLogin = (info) => {
 
     const loading = toast.loading('Please wait...!');
-    fetch("https://librado.evamp.in/login", {
+    fetch("http://localhost:3333/login", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/Json'

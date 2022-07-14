@@ -42,6 +42,7 @@ export default function Planning() {
     }
     const body = { img_url: imgUrl }
     const isSucceed = await POST_API("addPlanning", body, "Planning")
+    // console.log(body, "isSucceed", isSucceed)
     if (isSucceed) { setReload(!reload) }
   }
   const handlePlanningAssessment = async () => {
@@ -81,7 +82,7 @@ export default function Planning() {
       setState(!false)
     }
     else if (assessPlan) {
-      return swal("Failed!", "Rest first  to add assessment info again.", "error", { dangerMode: true });
+      return swal("Failed!", "Reset first  to add assessment info again.", "error", { dangerMode: true });
     }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
@@ -94,13 +95,13 @@ export default function Planning() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setAssessPlan(data?.data[0]?.assess_planning))
     }
   }, [comInfo?.company_id, reloadAssess])
   useEffect(() => {
-    fetch(`https://librado.evamp.in/getPlanning/`)
+    fetch(`http://localhost:3333/getPlanning/`)
       .then(res => res.json())
       .then(data => setPlannings(data.data))
 

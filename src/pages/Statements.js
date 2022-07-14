@@ -100,26 +100,26 @@ export default function Statements() {
 
   }
   const checkCompanySelector = () => {
-    if (comInfo.company_id) {
-      // if (comInfo.company_id && ! stmAssessInfo) {
+
+    if (comInfo.company_id && !stmAssessInfo) {
       setOpenDrawer(!false)
     }
-    // else if (stmAssessInfo) {
-    //   swal("Failed!", "Reset the company  info to add again", "error", { dangerMode: true });
-    // }
+    else if (stmAssessInfo) {
+      swal("Failed!", "Reset the company  info to add again", "error", { dangerMode: true });
+    }
     else {
       swal("Failed!", "Please select a Company and  try again.", "error", { dangerMode: true });
     }
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStmAssessInfo(data?.data[0]?.selectable_statement))
     }
   }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("https://librado.evamp.in/getStatementQsn")
+    fetch("http://localhost:3333/getStatementQsn")
       .then(res => res.json())
       .then(data => {
         setStatementQsn(data)
@@ -129,7 +129,6 @@ export default function Statements() {
   const handleEdit = (qsn) => {
     setEditingQsn(qsn)
     setState(!state)
-
   }
   const handleAddQsn = () => {
     setEditingQsn(null)

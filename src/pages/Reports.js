@@ -114,7 +114,7 @@ export default function Reports() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/reports")
+    fetch("http://localhost:3333/reports")
       .then(res => res.json())
       .then(data => {
         setReports(data?.data)
