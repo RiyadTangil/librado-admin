@@ -95,13 +95,13 @@ export default function Planning() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setAssessPlan(data?.data[0]?.assess_planning))
     }
   }, [comInfo?.company_id, reloadAssess])
   useEffect(() => {
-    fetch(`http://localhost:3333/getPlanning/`)
+    fetch(`https://librado.evamp.in/getPlanning/`)
       .then(res => res.json())
       .then(data => setPlannings(data.data))
 

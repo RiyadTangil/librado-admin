@@ -84,13 +84,13 @@ export default function Category() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setCategoryAssessInfo(data?.data[0]?.assess_category))
     }
   }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("http://localhost:3333/getCategories")
+    fetch("https://librado.evamp.in/getCategories")
       .then(res => res.json())
       .then(data => {
         setCategory(data?.data)
