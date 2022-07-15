@@ -1,5 +1,4 @@
 import swal from 'sweetalert';
-import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Grid, Button, Stack, Autocomplete, Checkbox, Typography, Card, Box, TextField, Drawer } from '@mui/material';
 // components
@@ -10,7 +9,6 @@ import CompanyList from '../components/CompanyList';
 import HappyCard from '../components/HappyCard';
 import { ASSESSMENT_POST_API, Delete_API, POST_API, UPDATE_API } from 'src/utils/api';
 import CustomCheckBox from 'src/components/CustomCheckBox';
-
 // ----------------------------------------------------------------------
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -132,6 +130,7 @@ export default function Category() {
               Category
             </Typography>
           </Grid>
+          
           <Grid item xs={4}>
             <Box display="flex" alignItems="center" justifyContent="end">
 
@@ -212,9 +211,7 @@ export default function Category() {
               spacing={2}
             >
               <Autocomplete
-                // onChange={(event, newValue) => {
-                //   handleAssessInfo(newValue);
-                // }}
+              
                 onChange={(event, newValue) => handleAssessInfo(event, newValue)}
                 multiple
                 options={allQuestion}

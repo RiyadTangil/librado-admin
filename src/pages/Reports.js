@@ -42,6 +42,8 @@ import toast from 'react-hot-toast';
 import swal from 'sweetalert';
 import { Delete_API, IMG_UPLOAD_API } from 'src/utils/api';
 import { LoadingButton } from '@mui/lab';
+import Pdf from 'src/components/Pdf';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 
 // ----------------------------------------------------------------------
@@ -142,6 +144,7 @@ export default function Reports() {
           <Stack direction="row" justifyContent="space-between" >
             <Typography variant="h4" gutterBottom>
               Published Report
+
             </Typography>
 
             <Stack direction="row" pl={2}>
@@ -152,6 +155,7 @@ export default function Reports() {
               </Button>
             </Stack>
           </Stack>
+          <Pdf />
           <UserListToolbar
             numSelected={selected.length}
             filterName={filterName}
@@ -315,9 +319,13 @@ export default function Reports() {
                                           </TableCell>
 
                                           <TableCell align="center">
-                                            <IconButton>
-                                              <FileDownloadOutlinedIcon />
-                                            </IconButton>
+                                            <PDFDownloadLink document={<Pdf item={item} />} fileName="FORM">
+                                              {<IconButton>
+                                                <FileDownloadOutlinedIcon />
+                                              </IconButton>}
+                                              {/* {({ loading, error }) => (<button >{"download"}</button>)} */}
+                                            </PDFDownloadLink>
+
                                           </TableCell>
                                           <TableCell align="center">
                                             <Button onClick={() => handleReportDelete(item.id)} variant="outlined" color="error" startIcon={<DeleteIcon />}>
