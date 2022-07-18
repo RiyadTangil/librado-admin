@@ -155,6 +155,7 @@ export default function GetStarted() {
               <MultipleInput
                 label={"points"}
                 setOptionInfo={setOptionInfo}
+                reload={reload}
                 optionInfo={optionInfo} />
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}

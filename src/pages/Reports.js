@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { filter } from 'lodash';
 import { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
@@ -30,7 +29,6 @@ import {
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
@@ -38,8 +36,6 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 //
 import avatar from './../assets/avatar_25.png'
 import USERLIST from '../_mocks_/user';
-import toast from 'react-hot-toast';
-import swal from 'sweetalert';
 import { Delete_API, IMG_UPLOAD_API } from 'src/utils/api';
 import { LoadingButton } from '@mui/lab';
 import Pdf from 'src/components/Pdf';
@@ -117,14 +113,18 @@ export default function Reports() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/mergedReports")
+    fetch("https://librado.evamp.in/reports")
+      // fetch("https://librado.evamp.in/mergedReports")
       .then(res => res.json())
       .then(data => {
         setReports(data?.data)
         setItems(data?.data)
+        mergedReportsHandler("role")
       })
 
+
   }, [reload])
+
   const handleReportDelete = async (id) => {
     const isSucceed = await Delete_API("deleteReports", id, "Report")
     if (isSucceed) { setReload(!reload); }
@@ -138,6 +138,64 @@ export default function Reports() {
     }
     setLoading(false)
   }
+
+  const handleSubmission = (report, submission) => {
+    const targetSub = submission.map((preItem) => {
+      const filteredInfo = report.valueRanking.find(
+        (currentItem) => preItem.id === currentItem.id
+      );
+      if (filteredInfo && !preItem.selectionTimes) {
+        preItem.selectionTimes = 2;
+      } else {
+        preItem.selectionTimes++;
+      }
+
+      return preItem;
+    });
+    return targetSub;
+  };
+  const mergedReportsHandler = (type) => {
+    const finalComReport = reports.map((company) => {
+      let uniqueReport = new Array();
+      company.reports.map((report) => {
+        let index = uniqueReport.findIndex(
+          (items) => items.role === report.role
+        );
+        if (index === -1) {
+          uniqueReport.push({
+            role: report.role,
+            id: report.id,
+            happiness_score: report.happiness_score,
+            selectionTime: 1,
+            target_submission: report.target_submission[0].valueRanking,
+            current_submission: report.current_submission[0].valueRanking,
+          });
+        } else {
+          uniqueReport[index].happiness_score += report.happiness_score;
+          uniqueReport[index].selectionTime++;
+          uniqueReport[index].target_submission = handleSubmission(
+            report.target_submission[0],
+            uniqueReport[index].target_submission
+          );
+          uniqueReport[index].current_submission = handleSubmission(
+            report.current_submission[0],
+            uniqueReport[index].current_submission
+          );
+        }
+      });
+      const finalReport = {
+        name: company.name,
+        company_name: company.company_name,
+        email: company.email,
+        img_url: company.img_url,
+        reports: uniqueReport,
+      };
+      return finalReport;
+    });
+    console.log(finalComReport, "finalComReport")
+    return finalComReport
+  }
+
   return (
     <Page title="User ">
       <Container>
@@ -236,6 +294,17 @@ export default function Reports() {
                             </TableCell>
                             <TableCell align="left">{company_name}</TableCell>
                             <TableCell align="left">{email}</TableCell>
+
+
+                            <TableCell align="center">
+                              {/* <PDFDownloadLink document={<Pdf img={img_url} email={email} name={company_name} />} fileName="FORM"> */}
+                              {
+                                <IconButton>
+                                  <FileDownloadOutlinedIcon />
+                                </IconButton>}
+                              {/* {({ loading, error }) => (<button >{"download"}</button>)} */}
+                              {/* </PDFDownloadLink> */}
+                            </TableCell>
                             <TableCell align="right">
                               <IconButton
                                 aria-label="expand row"

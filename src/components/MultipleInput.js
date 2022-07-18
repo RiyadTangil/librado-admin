@@ -1,14 +1,11 @@
 import { Box, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Iconify from './Iconify';
 
-const MultipleInput = ({ setOptionInfo, optionInfo, label }) => {
+const MultipleInput = ({ setOptionInfo, optionInfo, label, reload }) => {
     const [option, setOption] = useState([1]);
     const btnBox = {
         position: 'relative',
-
-
-
     }
     const btn = {
         position: 'absolute',
@@ -22,7 +19,11 @@ const MultipleInput = ({ setOptionInfo, optionInfo, label }) => {
 
         const newInfo = { value: item, option: e.target.value };
         setOptionInfo([...optionInfo, newInfo]);
+
     }
+    useEffect(() => {
+        setOption([1])
+    }, [reload])
 
     return (
         <>

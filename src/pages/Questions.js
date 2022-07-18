@@ -1,13 +1,12 @@
-import { Link as RouterLink } from 'react-router-dom';
+
 import swal from 'sweetalert';
 // material
 import { useState, useEffect } from 'react';
-import { Grid, Tabs, Tab, Button, Stack, Typography, Card, TextField, Box, Autocomplete, ButtonGroup, Drawer, OutlinedInput } from '@mui/material';
+import { Grid, Tabs, Tab, Button, Stack, Typography, Card, TextField, Box, Autocomplete, Drawer } from '@mui/material';
 // components
 import QuestionCard from '../components/QuestionCard';
 // components
 import Page from '../components/Page';
-import Iconify from '../components/Iconify';
 import { Delete_API, GET_API, POST_API, UPDATE_API } from 'src/utils/api';
 import { TabPanel, TabContext } from '@mui/lab';
 import MultipleInput from 'src/components/MultipleInput';
@@ -20,16 +19,11 @@ export default function Question() {
   const [editQsn, setEditingQsn] = useState(null);
   const [categories, setCategories] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [showQsn, setShowQsn] = useState([]);
-  const [option, setOption] = useState([1]);
+
   const [optionInfo, setOptionInfo] = useState([]);
   const [value, setValue] = useState("value-0");
 
   const handleCge = (event, newValue) => {
-
-    console.log(newValue.split("-"), "splite restult")
-    setShowQsn(questions[0])
-    console.log(questions[0])
     setValue(newValue);
   };
   const handleChange = (e, value = 0) => {
@@ -42,11 +36,6 @@ export default function Question() {
       newInfo[e.target.id.split('-')[0]] = e.target.value;
       setComInfo(newInfo);
     }
-  }
-  const handleOptionValue = (e, value, item) => {
-
-    const newInfo = { value: item, option: e.target.value };
-    setOptionInfo([...optionInfo, newInfo]);
   }
   const checkCompanySelector = () => {
     if (comInfo.category_id) {
@@ -66,13 +55,11 @@ export default function Question() {
       "priority": comInfo.priority,
 
     }
-    console.log(optionInfo, "optionInfo", comInfo.priority_info)
     const isSucceed = await POST_API(`addQuestion/${id}`, body, "Question")
     if (isSucceed) {
       setReload(!reload);
-      setOption([1])
       setOptionInfo([])
-      document.getElementById("options+1").value = ""
+      clearValue(["question", "options+1", "priority_info", "question_type", "priority"])
     }
   }
   const handleUpdateQuestion = async (id) => {
@@ -86,10 +73,13 @@ export default function Question() {
     const isSucceed = await UPDATE_API(`updateQuestion/${id}`, body, "Question")
     if (isSucceed) {
       setReload(!reload);
-      setOption([1])
+
       setOptionInfo([])
-      document.getElementById("options+1").value = ""
+      clearValue(["options+1"])
     }
+  }
+  const clearValue = (items) => {
+    items.map(item => document.getElementById(item).value = "")
   }
 
   const handleDelete = async (id) => {
@@ -116,17 +106,8 @@ export default function Question() {
     setComInfo(newInfo);
 
   }
-  const btnBox = {
-    position: 'relative',
 
-  }
-  const btn = {
-    position: 'absolute',
-    right: '0',
-    bottom: '0',
-    transform: 'translateY(70%)',
-    cursor: 'pointer'
-  }
+
   return (
     <Page title="Dashboard: Blog">
       <Card sx={{ p: 3 }}>
@@ -162,7 +143,7 @@ export default function Question() {
           >
             <Stack alignItems="center" justifyContent="center" mb={5}>
               <Button
-                id="save-btn"
+                id="save"
                 onClick={() => comInfo?.update_id ? handleUpdateQuestion(comInfo?.update_id) : handleAddQuestion(comInfo?.category_id)}
                 sx={{
                   position: 'absolute',
@@ -200,18 +181,9 @@ export default function Question() {
                 <MultipleInput
                   label={"options"}
                   setOptionInfo={setOptionInfo}
-                  F optionInfo={optionInfo} />
-                {/* {option.map((item, index) =>
-                  <Box style={btnBox} key={index + 1}>
-                    {option.length - 1 === option.lastIndexOf(item) &&
-                      <Iconify onClick={() => setOption([...option, item + 1])} style={btn} color="green" icon="akar-icons:circle-plus-fill" />}
-                    <TextField
-                      onBlur={(e, value) => handleOptionValue(e, value, item)}
-                      id={`options+${item}`}
-                      label="options"
-                      placeholder="options"
-                    />
-                  </Box>)} */}
+                  reload={reload}
+                  optionInfo={optionInfo} />
+
               </Box>
               <TextField
                 onBlur={(e, value) => handleChange(e, value)}
@@ -266,12 +238,9 @@ export default function Question() {
               </TabPanel>
 
             ))
-
             }
-
           </TabContext>
         </Box>
-
       </Card>
     </Page >
   );
