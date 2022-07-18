@@ -18,6 +18,7 @@ import Category from './pages/Category';
 import Users from './pages/Users';
 import Planning from './pages/Planning';
 import ProtectedRoute from './utils/ProtectedRoute';
+import ReportImg from './pages/ReportImg';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +40,8 @@ export default function Router() {
         { path: 'category', element: <Category /> },
 
         { path: 'reports', element: <Reports /> },
-        { path: 'planning', element: <Planning /> }
+        { path: 'planning', element: <Planning /> },
+        { path: 'report-img', element: <ReportImg /> }
       ]
     },
     {

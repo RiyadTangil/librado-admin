@@ -66,6 +66,13 @@ const sidebarConfig = [
     path: '/dashboard/planning',
     icon: getIcon('eva:file-text-fill')
   }
+  ,
+
+  {
+    title: 'Report Images',
+    path: '/dashboard/report-img',
+    icon: getIcon('eva:file-text-fill')
+  }
 ];
 
 export default sidebarConfig;
