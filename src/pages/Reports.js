@@ -113,7 +113,7 @@ export default function Reports() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/mergedReports")
+    fetch("https://librado.evamp.in/reports")
       // fetch("https://librado.evamp.in/mergedReports")
       .then(res => res.json())
       .then(data => {

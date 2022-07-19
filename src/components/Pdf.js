@@ -176,7 +176,7 @@ const Pdf = ({ item, img, name, email }) => {
 
                 <View style={styles.score_box}>
 
-                    <Text style={styles.score}> Score:  {item.happiness_score / item.selectionTime} </Text>
+                    <Text style={styles.score}> Score:  {item.happiness_score / item.no_of_report} </Text>
                     <Image
                         style={{ width: 50, height: 50 }}
                         src={emoji}

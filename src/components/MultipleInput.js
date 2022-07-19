@@ -31,7 +31,7 @@ const MultipleInput = ({ setOptionInfo, optionInfo, label, reload }) => {
                 option.map((item, index) =>
                     <Box style={btnBox} key={index + 1}>
                         {option.length - 1 === option.lastIndexOf(item) &&
-                            <Iconify onClick={() => setOption([...option, item + 1])} style={btn} color="green" icon="akar-icons:circle-plus-fill" />}
+                            <Iconify onClick={() => setOption([...option, item + 1])} style={btn} color="green" id="plus-btn" icon="akar-icons:circle-plus-fill" />}
                         <TextField
                             onBlur={(e, value) => handleOptionValue(e, value, item)}
                             id={`options+${item}`}
