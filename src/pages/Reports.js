@@ -113,13 +113,13 @@ export default function Reports() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/reports")
-      // fetch("https://librado.evamp.in/mergedReports")
+    fetch("http://localhost:3333/mergedReports")
+      // fetch("http://localhost:3333/mergedReports")
       .then(res => res.json())
       .then(data => {
         setReports(data?.data)
         setItems(data?.data)
-        mergedReportsHandler("role")
+        // mergedReportsHandler("role")
       })
 
 
@@ -297,13 +297,15 @@ export default function Reports() {
 
 
                             <TableCell align="center">
-                              {/* <PDFDownloadLink document={<Pdf img={img_url} email={email} name={company_name} />} fileName="FORM"> */}
-                              {
-                                <IconButton>
+                              <PDFDownloadLink document={<Pdf item={report} img={img_url} email={email} name={company_name} />} fileName="FORM">
+
+                                {({ loading, error }) => (!loading ? <IconButton>
                                   <FileDownloadOutlinedIcon />
-                                </IconButton>}
-                              {/* {({ loading, error }) => (<button >{"download"}</button>)} */}
-                              {/* </PDFDownloadLink> */}
+                                </IconButton> : <LoadingButton loading variant="outlined">
+                                  Submit
+                                </LoadingButton>)}
+
+                              </PDFDownloadLink>
                             </TableCell>
                             <TableCell align="right">
                               <IconButton
@@ -387,12 +389,12 @@ export default function Reports() {
                                           </TableCell>
 
                                           <TableCell align="center">
-                                            <PDFDownloadLink document={<Pdf item={item} img={img_url} email={email} name={company_name} />} fileName="FORM">
-                                              {<IconButton>
-                                                <FileDownloadOutlinedIcon />
-                                              </IconButton>}
-                                              {/* {({ loading, error }) => (<button >{"download"}</button>)} */}
-                                            </PDFDownloadLink>
+                                            {/* <PDFDownloadLink document={<Pdf item={item} img={img_url} email={email} name={company_name} />} fileName="FORM"> */}
+                                            {<IconButton>
+                                              <FileDownloadOutlinedIcon />
+                                            </IconButton>}
+                                            {/* </PDFDownloadLink> */}
+                                            {/* {({ loading, error }) => (<button >{"download"}</button>)} */}
 
                                           </TableCell>
                                           <TableCell align="center">
@@ -596,7 +598,7 @@ export default function Reports() {
 //   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
 //   useEffect(() => {
-//     fetch("https://librado.evamp.in/mergedReports")
+//     fetch("http://localhost:3333/mergedReports")
 //       .then(res => res.json())
 //       .then(data => {
 //         setReports(data?.data)

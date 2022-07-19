@@ -15,9 +15,11 @@ const TableHeader = ({ title }) => {
     const head = title.map((item, index) => (
 
         <Text style={{
-            width: index === 1 ? "70%" : "15%",
+            width: index === 1 ? "60%" : "10%",
             textAlign: 'center',
             backgroundColor: '#FF914D',
+            fontSize: "10px",
+            paddingVertical: "5px"
         }}>{item}</Text>
 
     ));

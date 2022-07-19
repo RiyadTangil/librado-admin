@@ -93,14 +93,14 @@ export default function HappinessFactor() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setHappyAssessInfo(data?.data[0]?.happiness_assessment))
     }
   }, [comInfo?.company_id, responseData])
   useEffect(() => {
 
-    fetch("https://librado.evamp.in/getHappinessQsn")
+    fetch("http://localhost:3333/getHappinessQsn")
       .then(res => res.json())
       .then(data => {
         setHappinessQs(data)

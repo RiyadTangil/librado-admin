@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 
 const ItemsTable = ({ data, title }) => (
     <View style={styles.tableContainer}>
-        <TableHeader title={["Sl", "Questions", "Selected"]} />
+        <TableHeader title={["Sl", "Statements", "Most_likely", "Least_likely", "Selected"]} />
         <TableRow items={data} />
         {/*<TableFooter items={data.items} />*/}
     </View>

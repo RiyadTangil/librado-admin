@@ -50,7 +50,7 @@ export default function AddCompnayInfo({ industries, department, roles, location
     }
     useEffect(() => {
         if (comInfo?.company_id) {
-            fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
+            fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
                 .then(res => res.json())
                 .then(data => setAssessInfo(data?.data[0]?.assessment_info))
 
