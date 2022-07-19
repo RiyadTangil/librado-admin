@@ -111,13 +111,13 @@ export default function Statements() {
   }
   useEffect(() => {
     if (comInfo?.company_id) {
-      fetch(`http://localhost:3333/getCompanyById/${comInfo?.company_id}`)
+      fetch(`https://librado.evamp.in/getCompanyById/${comInfo?.company_id}`)
         .then(res => res.json())
         .then(data => setStmAssessInfo(data?.data[0]?.selectable_statement))
     }
   }, [comInfo?.company_id, reload])
   useEffect(() => {
-    fetch("http://localhost:3333/getStatementQsn")
+    fetch("https://librado.evamp.in/getStatementQsn")
       .then(res => res.json())
       .then(data => {
         setStatementQsn(data)

@@ -32,7 +32,7 @@ export default function ManageRegCompany() {
         newObject[id] = comInfo[id]
         const capitalizeId = id.charAt(0).toUpperCase() + id.slice(1);
         const loading = toast.loading('Please wait...!');
-        fetch(`http://localhost:3333/add${capitalizeId}`, {
+        fetch(`https://librado.evamp.in/add${capitalizeId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/Json'
@@ -58,7 +58,7 @@ export default function ManageRegCompany() {
     const handleDelete = (id, drawerId) => {
         const capitalizeId = drawerId.charAt(0).toUpperCase() + drawerId.slice(1);
         const loading = toast.loading('Please wait...!');
-        fetch(`http://localhost:3333/delete${capitalizeId}/${id}`, {
+        fetch(`https://librado.evamp.in/delete${capitalizeId}/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/Json'
@@ -81,7 +81,7 @@ export default function ManageRegCompany() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:3333/getAllWelcomeInfo")
+        fetch("https://librado.evamp.in/getAllWelcomeInfo")
             .then(res => res.json())
             .then(data => {
                 setLocation(data?.location)
