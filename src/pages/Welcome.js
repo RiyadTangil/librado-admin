@@ -55,7 +55,7 @@ export default function Welcome() {
   }
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/getAllWelcomeInfo")
+    fetch("http://localhost:3333/getAllWelcomeInfo")
       .then(res => res.json())
       .then(data => {
         setLocation(data?.location)
@@ -70,12 +70,12 @@ export default function Welcome() {
     }
   }, [industries, department, roles, location])
   useEffect(() => {
-    fetch("https://librado.evamp.in/getCompany")
+    fetch("http://localhost:3333/getCompany")
       .then(res => res.json())
       .then(data => setComList(data))
   }, [])
   useEffect(() => {
-    fetch("https://librado.evamp.in/getCategories")
+    fetch("http://localhost:3333/getCategories")
       .then(res => res.json())
       .then(data => setCategories(data?.data))
   }, [])

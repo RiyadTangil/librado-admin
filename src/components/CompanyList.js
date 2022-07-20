@@ -8,7 +8,7 @@ export default function CompanyList({ setComInfo, reload, comInfo, comList, setC
         setComInfo(newInfo);
     }
     useEffect(() => {
-        fetch("https://librado.evamp.in/getCompany")
+        fetch("http://localhost:3333/getCompany")
             .then(res => res.json())
             .then(data => setComList(data))
     }, [reload])

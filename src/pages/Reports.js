@@ -40,6 +40,7 @@ import { Delete_API, IMG_UPLOAD_API } from 'src/utils/api';
 import { LoadingButton } from '@mui/lab';
 import Pdf from 'src/components/Pdf';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import toast from 'react-hot-toast';
 
 
 // ----------------------------------------------------------------------
@@ -73,6 +74,8 @@ export default function Reports() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [reports, setReports] = useState([]);
   const [items, setItems] = useState([]);
+  const [reportContent, setReportContent] = useState({});
+  const [reportId, setReportId] = useState(null);
   const [reload, setReload] = useState(false);
   const [imgUrl, setImgUrl] = useState(null);
   const [state, setState] = useState(false);
@@ -113,8 +116,8 @@ export default function Reports() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/reports")
-      // fetch("https://librado.evamp.in/mergedReports")
+    fetch("http://localhost:3333/reports")
+      // fetch("http://localhost:3333/mergedReports")
       .then(res => res.json())
       .then(data => {
         setReports(data?.data)
@@ -137,65 +140,113 @@ export default function Reports() {
       setImgUrl(isSucceed);
     }
     setLoading(false)
+
   }
 
-  const handleSubmission = (report, submission) => {
-    const targetSub = submission.map((preItem) => {
-      const filteredInfo = report.valueRanking.find(
-        (currentItem) => preItem.id === currentItem.id
-      );
-      if (filteredInfo && !preItem.selectionTimes) {
-        preItem.selectionTimes = 2;
-      } else {
-        preItem.selectionTimes++;
-      }
 
-      return preItem;
-    });
-    return targetSub;
-  };
-  const mergedReportsHandler = (type) => {
-    const finalComReport = reports.map((company) => {
-      let uniqueReport = new Array();
-      company.reports.map((report) => {
-        let index = uniqueReport.findIndex(
-          (items) => items.role === report.role
-        );
-        if (index === -1) {
-          uniqueReport.push({
-            role: report.role,
-            id: report.id,
-            happiness_score: report.happiness_score,
-            selectionTime: 1,
-            target_submission: report.target_submission[0].valueRanking,
-            current_submission: report.current_submission[0].valueRanking,
-          });
-        } else {
-          uniqueReport[index].happiness_score += report.happiness_score;
-          uniqueReport[index].selectionTime++;
-          uniqueReport[index].target_submission = handleSubmission(
-            report.target_submission[0],
-            uniqueReport[index].target_submission
-          );
-          uniqueReport[index].current_submission = handleSubmission(
-            report.current_submission[0],
-            uniqueReport[index].current_submission
-          );
+
+
+  // const mergedReportsHandler = (reports, type) => {
+  //   let uniqueReport = new Array();
+  //   reports.map((report) => {
+  //     let index = uniqueReport.findIndex(
+  //       (items) => items.role === report.role
+  //     );
+  //     if (index === -1) {
+  //       uniqueReport.push({
+  //         role: report.role,
+  //         id: report.id,
+  //         happiness_score: report.happiness_score,
+  //         selectionTime: 1,
+  //         target_submission: report.target_submission[0].valueRanking,
+  //         current_submission: report.current_submission[0].valueRanking,
+  //       });
+  //     } else {
+  //       uniqueReport[index].happiness_score += report.happiness_score;
+  //       uniqueReport[index].selectionTime++;
+  //       uniqueReport[index].target_submission = handleSubmission(
+  //         report.target_submission[0],
+  //         uniqueReport[index].target_submission
+  //       );
+  //       uniqueReport[index].current_submission = handleSubmission(
+  //         report.current_submission[0],
+  //         uniqueReport[index].current_submission
+  //       );
+  //     }
+  //   });
+  //   console.log(uniqueReport, "uniqueReport")
+  //   return uniqueReport;
+
+
+  // }
+
+
+
+  const handleSubmission = (currentReport, submittedReport) => {
+    const newItems = new Array();
+    currentReport.valueRanking.map((currentItem) => {
+      for (let i = 0; i < submittedReport.length; i++) {
+        const preItem = submittedReport[i];
+        if (currentItem.id === preItem.id) {
+          if (!preItem.selectionTimes) {
+            submittedReport[i].selectionTimes = 1;
+          } else if (currentItem.mLikely) {
+            submittedReport[i].selectionTimes++;
+            submittedReport[i].mLikely++;
+          } else if (currentItem.lLikely) {
+            submittedReport[i].selectionTimes++;
+            submittedReport[i].lLikely++;
+          }
+          break;
+        } else if (
+          currentItem.id !== preItem.id &&
+          submittedReport.length === i + 1
+        ) {
+          newItems.push(currentItem);
         }
-      });
-      const finalReport = {
-        name: company.name,
-        company_name: company.company_name,
-        email: company.email,
-        img_url: company.img_url,
-        reports: uniqueReport,
-      };
-      return finalReport;
-    });
-    console.log(finalComReport, "finalComReport")
-    return finalComReport
-  }
+        //hello
 
+      }
+    });
+    const newRtn = [...submittedReport, ...newItems];
+    // console.log("return able", newRtn);
+    return newRtn;
+  };
+
+  const generateReport = (reports, id) => {
+    // mergedReportsHandler(reports, 4)
+    // const loading = toast.loading('Report is being generated. Please wait...!')
+    const newObj = {
+      happiness_score: 0,
+      no_of_report: reports.length,
+      target_submission: new Array(),
+      current_submission: new Array(),
+
+    };
+    reports.map((report, index) => {
+      newObj.happiness_score += report.happiness_score;
+      if (index === 0) {
+        newObj.target_submission = report.target_submission[0].valueRanking;
+        newObj.current_submission =
+          report.current_submission[0].valueRanking;
+      } else {
+        newObj.target_submission = handleSubmission(
+          report.target_submission[0],
+          newObj.target_submission
+        );
+        newObj.current_submission = handleSubmission(
+          report.current_submission[0],
+          newObj.current_submission
+        );
+      }
+    });
+    setReportContent(newObj)
+    setReportId(id)
+    // toast.dismiss(loading)
+    // toast.success('You Report is ready to download')
+
+
+  }
   return (
     <Page title="User ">
       <Container>
@@ -267,7 +318,7 @@ export default function Reports() {
                 <TableBody>
                   {items
                     .map((report, index) => {
-                      const { id, email, company_name, company, img_url, reports } = report;
+                      const { id, email, company_name, img_url, reports } = report;
                       const isItemSelected = selected.indexOf(company_name) !== -1;
 
                       return (
@@ -297,15 +348,20 @@ export default function Reports() {
 
 
                             <TableCell align="center">
-                              <PDFDownloadLink document={<Pdf item={report} img={img_url} email={email} name={company_name} />} fileName="FORM">
 
-                                {({ loading, error }) => (!loading ? <IconButton>
+
+                              {reportId === id ?
+                                <PDFDownloadLink document={<Pdf item={reportContent} img={img_url} email={email} name={company_name} />} fileName="FORM">
+
+                                  {({ loading, error }) => (!loading ? <IconButton>
+                                    <FileDownloadOutlinedIcon />
+                                  </IconButton> : <LoadingButton loading variant="outlined">
+                                    Submit
+                                  </LoadingButton>)}
+
+                                </PDFDownloadLink> : <IconButton onClick={() => generateReport(reports, id)}>
                                   <FileDownloadOutlinedIcon />
-                                </IconButton> : <LoadingButton loading variant="outlined">
-                                  Submit
-                                </LoadingButton>)}
-
-                              </PDFDownloadLink>
+                                </IconButton>}
                             </TableCell>
                             <TableCell align="right">
                               <IconButton
@@ -345,9 +401,10 @@ export default function Reports() {
                                   <Table size="small" aria-label="purchases" >
                                     <TableHead>
                                       <TableRow>
-                                        {titles.map(title =>
+                                        {titles.map((title, index) =>
 
                                           <TableCell
+                                            key={index}
                                             align="center">
                                             {title}
                                           </TableCell>
@@ -598,7 +655,7 @@ export default function Reports() {
 //   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
 //   useEffect(() => {
-//     fetch("https://librado.evamp.in/mergedReports")
+//     fetch("http://localhost:3333/mergedReports")
 //       .then(res => res.json())
 //       .then(data => {
 //         setReports(data?.data)
@@ -861,3 +918,12 @@ export default function Reports() {
 //     </Page >
 //   );
 // }
+
+
+
+
+
+
+
+
+

@@ -48,7 +48,7 @@ export default function Users() {
 
   }
   useEffect(() => {
-    fetch("https://librado.evamp.in/getUsers")
+    fetch("http://localhost:3333/getUsers")
       .then(res => res.json())
       .then(data => {
         setUsers(data?.data)

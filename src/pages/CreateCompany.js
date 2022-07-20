@@ -184,7 +184,7 @@ export default function CreateCompany() {
   }
 
   useEffect(() => {
-    fetch("https://librado.evamp.in/getCompany")
+    fetch("http://localhost:3333/getCompany")
       .then(res => res.json())
       .then(data => {
         setComList(data)
